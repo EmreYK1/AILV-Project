@@ -1,0 +1,139 @@
+-- Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- USERS table (for future extensions)
+CREATE TABLE users (
+     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+     username VARCHAR(100) UNIQUE NOT NULL,
+     email VARCHAR(255) UNIQUE NOT NULL,
+     password_hash VARCHAR(255) NOT NULL,
+     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS generation_requests (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    topic TEXT NOT NULL,
+    language VARCHAR(10) NOT NULL,
+    count INT NOT NULL DEFAULT 1,
+    types JSONB NOT NULL DEFAULT '[]'::jsonb,
+    difficulty_distribution JSONB NULL,
+    learning_objectives JSONB NULL,
+    bloom_level VARCHAR(50) NULL,
+    target_audience TEXT NULL,
+    context_text TEXT NULL,
+    upload_context TEXT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+    );
+
+CREATE INDEX idx_generation_requests_user_id ON generation_requests (user_id);
+
+CREATE TABLE IF NOT EXISTS prompts (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    request_id UUID NOT NULL REFERENCES generation_requests(id) ON DELETE CASCADE,
+    stage VARCHAR(50) NOT NULL,        -- e.g. SKELETON, CONTENT, IMPROVE
+    prompt_text TEXT,
+    response_text TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+    );
+
+CREATE INDEX idx_prompts_request_id ON prompts (request_id);
+
+CREATE TABLE IF NOT EXISTS generated_questions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    request_id UUID NOT NULL
+    REFERENCES generation_requests(id) ON DELETE CASCADE,
+    prompt_id UUID NOT NULL
+    REFERENCES prompts(id) ON DELETE CASCADE,
+    stage VARCHAR(50) NOT NULL,  -- z.B. SKELETON, CONTENT, IMPROVE
+    type VARCHAR(50),
+    difficulty VARCHAR(20),
+    stem TEXT,
+    choices JSONB,
+    correct_index INT,
+    answer TEXT,                      -- for SHORT_ANSWER: correct answer
+    rationale TEXT,
+    learning_objective TEXT NULL,
+    bloom_level VARCHAR(50) NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+    );
+
+-- QUESTIONS table (generated items)
+CREATE TABLE IF NOT EXISTS questions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    request_id UUID NOT NULL REFERENCES generation_requests(id) ON DELETE CASCADE,
+    prompt_id UUID REFERENCES prompts(id) ON DELETE SET NULL,
+    type VARCHAR(50),
+    difficulty VARCHAR(20),
+    stem TEXT,
+    choices JSONB,                      -- for MCQ: array of choices
+    correct_index INT,                  -- index into choices (0-based)
+    answer TEXT,                        -- for SHORT_ANSWER: correct answer
+    rationale TEXT,
+    learning_objective TEXT NULL,
+    bloom_level VARCHAR(50) NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+    );
+
+CREATE INDEX idx_questions_request_id ON questions (request_id);
+
+-- GENERATED_SLIDES (temporäre LLM-Ausgabe)
+CREATE TABLE IF NOT EXISTS generated_slides (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    request_id UUID NOT NULL REFERENCES generation_requests(id) ON DELETE CASCADE,
+    prompt_id UUID NOT NULL REFERENCES prompts(id) ON DELETE CASCADE,
+    stage VARCHAR(50) NOT NULL,
+    position INT NOT NULL,
+    slide_type VARCHAR(50),
+    title TEXT,
+    bullets JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+    );
+
+CREATE INDEX idx_generated_slides_request_id ON generated_slides(request_id);
+
+-- SLIDE_DECKS (finale Foliensammlung)
+CREATE TABLE IF NOT EXISTS slide_decks (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    request_id UUID REFERENCES generation_requests(id) ON DELETE SET NULL,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+    );
+
+CREATE INDEX idx_slide_decks_user_id ON slide_decks(user_id);
+
+-- SLIDES (einzelne Folien eines Decks)
+CREATE TABLE IF NOT EXISTS slides (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    deck_id UUID NOT NULL REFERENCES slide_decks(id) ON DELETE CASCADE,
+    position INT NOT NULL,
+    slide_type VARCHAR(50),
+    title TEXT,
+    bullets JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+    );
+
+CREATE INDEX idx_slides_deck_id ON slides(deck_id);
+
+CREATE TABLE IF NOT EXISTS prompt_templates (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    stage VARCHAR(50) NOT NULL,          -- z.B. 'SKELETON', 'CONTENT', 'IMPROVE'
+    language VARCHAR(8) DEFAULT 'de',
+    template TEXT NOT NULL              -- der eigentliche Prompt-Text (mit Platzhaltern)
+    );
+
+CREATE INDEX IF NOT EXISTS idx_prompt_templates_stage ON prompt_templates(stage);
+CREATE INDEX IF NOT EXISTS idx_prompt_templates_language ON prompt_templates(language);
+
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token VARCHAR(255) UNIQUE NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    used BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+CREATE INDEX idx_password_reset_user_id
+    ON password_reset_tokens(user_id);
