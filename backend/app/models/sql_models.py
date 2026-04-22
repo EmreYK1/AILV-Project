@@ -49,9 +49,11 @@ class GenerationRequest(Base):
     __tablename__ = "generation_requests"
     id = Column(Uuid, primary_key=True, default=uuid.uuid4)
     user_id = Column(Uuid, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    request_type = Column(String(20), nullable=False, server_default="questions")  # 'questions' | 'slides'
     topic = Column(Text, nullable=False)
     language = Column(String(10), nullable=False)
-    count = Column(Integer, nullable=False, server_default="1")
+    count = Column(Integer, nullable=False, server_default="1")       # nur bei request_type='questions'
+    slide_count = Column(Integer, nullable=True)                      # nur bei request_type='slides'
     types = Column(JSONB, nullable=False, server_default="[]")
     difficulty_distribution = Column(JSONB, nullable=True)
     context_text = Column(Text, nullable=True)

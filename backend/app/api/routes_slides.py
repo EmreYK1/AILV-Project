@@ -1,12 +1,13 @@
-import uuid
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from ..models.slides_models import SlidesGenerateRequest, SlidesGenerateResponse
+from ..models.generate_models import GenerateRequest
 from ..services.validators.slides_request_validator import SlidesGenerateRequestValidator
 from ..core.auth_utils import get_current_user
 from ..models.sql_models import User
 from ..db import get_db
+from ..persistence.generation_repo import create_generation_request_db
 
 slides_router = APIRouter(prefix="/slides")
 
@@ -22,7 +23,13 @@ async def generate_slides(
 ):
     validator.validate(req)
 
+    base_req = GenerateRequest(topic=req.topic, language=req.language, count=1)
+    db_req = create_generation_request_db(
+        db, base_req, user_id=current_user.id,
+        request_type="slides", slide_count=req.slide_count,
+    )
+
     return SlidesGenerateResponse(
         status="pending",
-        request_id=uuid.uuid4(),
+        request_id=db_req.id,
     )

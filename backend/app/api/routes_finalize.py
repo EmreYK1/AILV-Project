@@ -37,6 +37,12 @@ def finalize_questions_endpoint(
             detail="Not allowed to finalize this request",
         )
 
+    if generation_request.request_type != "questions":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"This endpoint only finalizes question requests, not '{generation_request.request_type}' requests.",
+        )
+
     count = finalize_questions(db=db, req=req)
 
     return FinalizeQuestionsResponse(

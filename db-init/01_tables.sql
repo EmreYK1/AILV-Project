@@ -13,9 +13,11 @@ CREATE TABLE users (
 CREATE TABLE IF NOT EXISTS generation_requests (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    request_type VARCHAR(20) NOT NULL DEFAULT 'questions', -- 'questions' | 'slides'
     topic TEXT NOT NULL,
     language VARCHAR(10) NOT NULL,
-    count INT NOT NULL DEFAULT 1,
+    count INT NOT NULL DEFAULT 1,           -- Anzahl Fragen (nur bei request_type='questions')
+    slide_count INT NULL,                   -- Anzahl Folien  (nur bei request_type='slides')
     types JSONB NOT NULL DEFAULT '[]'::jsonb,
     difficulty_distribution JSONB NULL,
     learning_objectives JSONB NULL,
@@ -23,7 +25,8 @@ CREATE TABLE IF NOT EXISTS generation_requests (
     target_audience TEXT NULL,
     context_text TEXT NULL,
     upload_context TEXT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    CONSTRAINT chk_request_type CHECK (request_type IN ('questions', 'slides'))
     );
 
 CREATE INDEX idx_generation_requests_user_id ON generation_requests (user_id);
