@@ -51,6 +51,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   Fragen generieren
                 </NavLink>
               </li>
+              {isAuthenticated && (
+                <li className="app-nav-item">
+                  <NavLink
+                    to="/slides/generate"
+                    className={function ({ isActive }) {
+                      return 'app-nav-link' + (isActive ? ' app-nav-link--active' : '');
+                    }}
+                  >
+                    Folien generieren
+                  </NavLink>
+                </li>
+              )}
               <li className="app-nav-item">
                 <NavLink
                   to="/archive"

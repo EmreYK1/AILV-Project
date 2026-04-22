@@ -416,6 +416,26 @@
   width: 100%;
 }
 
+/* Ladezustand im Submit-Button: zentrierter Spinner + Text, blockiert Klicks via `disabled`. */
+.form-submit-button__loading {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+}
+
+/* Wiederverwendbarer, formularspezifischer Spinner. Nutzt das globale `@keyframes spin` (archive.css). */
+.form-button-spinner {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+  flex-shrink: 0;
+}
+
 /* Button Styles */
 .primary-button,
 .secondary-button {

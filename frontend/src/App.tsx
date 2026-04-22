@@ -6,6 +6,7 @@ import GuestRoute from './components/GuestRoute';
 import Layout from './layout/Layout';
 import HomePage from './pages/HomePage';
 import GeneratePage from './pages/GeneratePage';
+import SlidesGeneratePage from './pages/SlidesGeneratePage';
 import ArchivePage from './pages/ArchivePage';
 import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
@@ -23,6 +24,14 @@ const App: React.FC = () => {
           element={
             <ProtectedRoute>
               <GeneratePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/slides/generate"
+          element={
+            <ProtectedRoute>
+              <SlidesGeneratePage />
             </ProtectedRoute>
           }
         />

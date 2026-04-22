@@ -45,10 +45,9 @@ export function useFormWithTouchedValidation<
     ) as TErrors;
   }
 
-  // Eingabe ändern, Fehler neu berechnen, Submit-Fehler löschen.
-  function handleInputChange(event: ChangeEvent<HTMLInputElement>): void {
-    const { name, value } = event.target;
-    const fieldName = name as keyof TValues;
+  // Programmatischer Setter für ein einzelnes Feld: updates, löscht Submit-Fehler, rechnet sichtbare Fehler neu.
+  // Wird z. B. für numerische Felder mit Sanitierung oder für extern gesetzte Werte (PDF-Upload) genutzt.
+  function setFieldValue<K extends keyof TValues>(fieldName: K, value: TValues[K]): void {
     setSubmitError(null);
     setFormValues((prev: TValues) => {
       const next = { ...prev, [fieldName]: value } as TValues;
@@ -57,8 +56,19 @@ export function useFormWithTouchedValidation<
     });
   }
 
+  // Eingabe ändern, Fehler neu berechnen, Submit-Fehler löschen.
+  function handleInputChange(
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+  ): void {
+    const { name, value } = event.target;
+    const fieldName = name as keyof TValues;
+    setFieldValue(fieldName, value as TValues[typeof fieldName]);
+  }
+
   // blur: Feld als touched markieren.
-  function handleBlur(event: FocusEvent<HTMLInputElement>): void {
+  function handleBlur(
+    event: FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+  ): void {
     const fieldName = event.target.name as keyof TValues;
     const nextTouched = { ...touchedFields, [fieldName]: true };
     setTouchedFields(nextTouched);
@@ -91,5 +101,6 @@ export function useFormWithTouchedValidation<
     handleInputChange,
     handleBlur,
     handleSubmit,
+    setFieldValue,
   };
 }
