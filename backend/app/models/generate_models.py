@@ -19,7 +19,7 @@ class GenerateRequest(BaseModel):
     )
     context_text: Optional[str] = None
     upload_context: Optional[str] = None
-    # -> keine learning_objectives, bloom_level, target_audience, context_text im API-Modell
+    # -> kein target_audience im API-Modell
 
 class GeneratedQuestion(BaseModel):
     id: Optional[UUID] = None

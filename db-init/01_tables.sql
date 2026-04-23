@@ -20,8 +20,6 @@ CREATE TABLE IF NOT EXISTS generation_requests (
     slide_count INT NULL,                   -- Anzahl Folien  (nur bei request_type='slides')
     types JSONB NOT NULL DEFAULT '[]'::jsonb,
     difficulty_distribution JSONB NULL,
-    learning_objectives JSONB NULL,
-    bloom_level VARCHAR(50) NULL,
     target_audience TEXT NULL,
     context_text TEXT NULL,
     upload_context TEXT NULL,
@@ -56,8 +54,6 @@ CREATE TABLE IF NOT EXISTS generated_questions (
     correct_index INT,
     answer TEXT,                      -- for SHORT_ANSWER: correct answer
     rationale TEXT,
-    learning_objective TEXT NULL,
-    bloom_level VARCHAR(50) NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
     );
 
@@ -73,8 +69,6 @@ CREATE TABLE IF NOT EXISTS questions (
     correct_index INT,                  -- index into choices (0-based)
     answer TEXT,                        -- for SHORT_ANSWER: correct answer
     rationale TEXT,
-    learning_objective TEXT NULL,
-    bloom_level VARCHAR(50) NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
     );
 

@@ -26,8 +26,6 @@ erDiagram
         int slide_count
         jsonb types
         jsonb difficulty_distribution
-        jsonb learning_objectives
-        varchar bloom_level
         text target_audience
         text context_text
         text upload_context
@@ -62,8 +60,6 @@ erDiagram
         int correct_index
         text answer
         text rationale
-        text learning_objective
-        varchar bloom_level
         timestamp created_at
     }
 
@@ -78,8 +74,6 @@ erDiagram
         int correct_index
         text answer
         text rationale
-        text learning_objective
-        varchar bloom_level
         timestamp created_at
     }
 
@@ -159,7 +153,7 @@ Speichert alle Anfragen zur Fragen- und Folien-Generierung. Dieselbe Tabelle wir
 
 `request_type` ist durch einen DB-Constraint auf `'questions'` und `'slides'` beschränkt. Die automatische Zuweisung erfolgt in `generation_repo.py` via `isinstance`-Prüfung — der Aufrufer muss nichts explizit setzen.
 
-**Hauptfelder:** `id`, `user_id`, `request_type`, `topic`, `language`, `count`, `slide_count`, `types`, `difficulty_distribution`, `learning_objectives`, `bloom_level`, `target_audience`, `context_text`, `upload_context`, `created_at`
+**Hauptfelder:** `id`, `user_id`, `request_type`, `topic`, `language`, `count`, `slide_count`, `types`, `difficulty_distribution`, `target_audience`, `context_text`, `upload_context`, `created_at`
 
 ### prompt_templates
 
@@ -179,7 +173,7 @@ Temporärer Speicher für Fragen während des Generierungsprozesses. Jede Zeile 
 
 **Wichtig:** Diese Tabelle enthält Zwischendaten. Nach der Finalisierung werden die Fragen nach `questions` übertragen und hier gelöscht.
 
-**Hauptfelder:** `id`, `request_id`, `prompt_id`, `stage`, `type`, `difficulty`, `stem`, `choices`, `correct_index`, `answer`, `rationale`, `learning_objective`, `bloom_level`, `created_at`
+**Hauptfelder:** `id`, `request_id`, `prompt_id`, `stage`, `type`, `difficulty`, `stem`, `choices`, `correct_index`, `answer`, `rationale`, `created_at`
 
 ### questions
 
@@ -190,7 +184,7 @@ Finalisierte Fragen im Archiv. Struktur ähnlich wie `generated_questions`, aber
 - Kein `stage`-Feld (Frage ist bereits finalisiert)
 - Enthält nur dauerhaft gespeicherte Fragen
 
-**Hauptfelder:** `id`, `request_id`, `prompt_id`, `type`, `difficulty`, `stem`, `choices`, `correct_index`, `answer`, `rationale`, `learning_objective`, `bloom_level`, `created_at`
+**Hauptfelder:** `id`, `request_id`, `prompt_id`, `type`, `difficulty`, `stem`, `choices`, `correct_index`, `answer`, `rationale`, `created_at`
 
 ### generated_slides
 
