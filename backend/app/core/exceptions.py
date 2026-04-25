@@ -163,3 +163,10 @@ class SlideOutlineValidationError(AppError):
 
     def __init__(self, detail: str):
         super().__init__(detail)
+
+class SlidesContentValidationError(AppError):
+    status_code = 442
+    error_code = "invalid_slides_content"
+
+    def __init__(self, detail: str):
+        super().__init__(detail)
