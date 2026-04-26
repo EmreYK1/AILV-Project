@@ -10,6 +10,7 @@ from ..core.auth_utils import get_current_user
 from ..models.sql_models import User
 from ..db import get_db
 from ..persistence.generation_repo import create_generation_request_db
+from ..services.generation.slides_orchestrator import generate_slides as run_generate_slides
 
 slides_router = APIRouter(prefix="/slides")
 
@@ -24,17 +25,7 @@ async def generate_slides(
     current_user: User = Depends(get_current_user),
 ):
     validator.validate(req)
-
-    base_req = GenerateRequest(topic=req.topic, language=req.language, count=1)
-    db_req = create_generation_request_db(
-        db, base_req, user_id=current_user.id,
-        request_type="slides", slide_count=req.slide_count,
-    )
-
-    return SlidesGenerateResponse(
-        status="pending",
-        request_id=db_req.id,
-    )
+    return await run_generate_slides(req, db, user_id=current_user.id)
 
 @slides_router.post("/finalize", response_model=FinalizeSlidesResponse)
 async def finalize_slides_endpoint(

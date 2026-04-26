@@ -10,7 +10,7 @@ Erstelle eine Gliederung für eine Folienpräsentation zum Thema "{{topic}}".
 
 Die Präsentation hat insgesamt {{slide_count}} Folien:
 - Folie 1: Titelfolie (slide_type: "title")
-- Folien 2 bis {{slide_count - 1}}: Inhaltsfolien (slide_type: "content"), Anzahl: {{slide_count - 2}}
+- Folien 2 bis {{ slide_count - 1 }}: Inhaltsfolien (slide_type: "content"), Anzahl: {{ slide_count - 2 }}
 - Folie {{slide_count}}: Abschlussfolie (slide_type: "closing")
 
 Sprache: {{language}}
@@ -162,7 +162,7 @@ Create an outline for a slide presentation on the topic "{{topic}}".
 
 The presentation has {{slide_count}} slides in total:
 - Slide 1: Title slide (slide_type: "title")
-- Slides 2 to {{slide_count - 1}}: Content slides (slide_type: "content"), count: {{slide_count - 2}}
+- Slides 2 to {{ slide_count - 1 }}: Content slides (slide_type: "content"), count: {{ slide_count - 2 }}
 - Slide {{slide_count}}: Closing slide (slide_type: "closing")
 
 Language: {{language}}

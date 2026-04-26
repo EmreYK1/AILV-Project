@@ -16,7 +16,8 @@ async def generate_valid_improved_slides(
     max_attempts: int = 3,
 ) -> list[dict]:
     context = {
-        "slides_raw": json.dumps(content_slides, ensure_ascii=False, indent=2)
+        "language": language,
+        "slides_raw": json.dumps(content_slides, ensure_ascii=False, indent=2),
     }
 
     last_error: Exception | None = None

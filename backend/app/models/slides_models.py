@@ -12,11 +12,6 @@ class SlidesGenerateRequest(BaseModel):
     context_text: Optional[str] = None
     upload_context: Optional[str] = None
 
-
-class SlidesGenerateResponse(BaseModel):
-    status: str
-    request_id: UUID
-
 class SlideOutlineItem(BaseModel):
     position: int
     slide_type: Literal["title", "content", "closing"]
@@ -27,3 +22,8 @@ class SlideDraft(BaseModel):
     slide_type: Literal["title", "content", "closing"]
     title: str
     bullets: list[str]
+
+class SlidesGenerateResponse(BaseModel):
+    status: str
+    request_id: UUID
+    slides: list[SlideDraft] = Field(default_factory=list)
