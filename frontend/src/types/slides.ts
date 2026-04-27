@@ -11,6 +11,7 @@ export interface SlidesGenerateRequest {
 export interface SlidesGenerateResponse {
   status: string;
   request_id: string;
+  slides: SlideDraft[];
 }
 
 export interface SlideDraft {

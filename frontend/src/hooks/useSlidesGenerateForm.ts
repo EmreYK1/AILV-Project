@@ -66,30 +66,36 @@ export interface UseSlidesGenerateFormReturn {
   ) => void;
   handleSubmit: (event: React.FormEvent<HTMLFormElement>) => Promise<void>;
   setUploadContext: (value: string | undefined) => void;
+  regenerate: () => Promise<void>;
 }
 
 export function useSlidesGenerateForm({
   onSuccess,
 }: UseSlidesGenerateFormProps = {}): UseSlidesGenerateFormReturn {
+  const submitValues = async (
+    values: SlidesFormValues,
+    setSubmitError: (err: string | null) => void,
+    setIsLoading: (loading: boolean) => void,
+  ): Promise<void> => {
+    setIsLoading(true);
+    try {
+      const response = await generateSlides(toApiRequest(values));
+      onSuccess?.(response);
+    } catch (error) {
+      // ApiError/NetworkError/AppError werden hier in menschenlesbare Texte übersetzt
+      setSubmitError(getUserFriendlyMessage(error));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const base = useFormWithTouchedValidation<SlidesFormValues, SlidesValidationErrors>(
     INITIAL_VALUES,
     validateFormValues,
-    async (values, setSubmitError, setIsLoading) => {
-      setIsLoading(true);
-      try {
-        const response = await generateSlides(toApiRequest(values));
-        onSuccess?.(response);
-      } catch (error) {
-        // ApiError/NetworkError/AppError werden hier in menschenlesbare Texte übersetzt
-        setSubmitError(getUserFriendlyMessage(error));
-      } finally {
-        setIsLoading(false);
-      }
-    },
+    submitValues,
   );
 
   // slideCount: auf reine Ziffern beschränken, bevor der State aktualisiert wird.
-  // Die restlichen Felder können den generischen Change-Handler nutzen.
   const handleInputChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) => {
@@ -108,6 +114,13 @@ export function useSlidesGenerateForm({
     base.setFieldValue('uploadContext', value ?? '');
   };
 
+  // Nutzt dieselben Formularwerte wie der letzte erfolgreiche Submit.
+  // Dadurch kann die Vorschau neu erzeugt werden, ohne das Formular zu leeren.
+  const regenerate = async (): Promise<void> => {
+    base.setSubmitError(null);
+    await submitValues(base.formValues, base.setSubmitError, base.setIsLoading);
+  };
+
   return {
     formValues: base.formValues,
     errors: base.errors,
@@ -118,5 +131,6 @@ export function useSlidesGenerateForm({
     handleBlur: base.handleBlur,
     handleSubmit: base.handleSubmit,
     setUploadContext,
+    regenerate,
   };
 }

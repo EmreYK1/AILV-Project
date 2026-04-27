@@ -2,16 +2,15 @@
 // Darstellung des Folien-Generierungsformulars. Logik: useSlidesGenerateForm.
 
 import React from 'react';
-import type { SlidesGenerateResponse } from '../types/slides';
-import { useSlidesGenerateForm } from '../hooks/useSlidesGenerateForm';
+import type { UseSlidesGenerateFormReturn } from '../hooks/useSlidesGenerateForm';
 import { ErrorBanner } from './ErrorBanner';
 import { PdfUpload } from './PdfUpload';
 
 interface SlidesGenerateFormProps {
-  onSuccess?: (response: SlidesGenerateResponse) => void;
+  form: UseSlidesGenerateFormReturn;
 }
 
-export const SlidesGenerateForm: React.FC<SlidesGenerateFormProps> = ({ onSuccess }) => {
+export const SlidesGenerateForm: React.FC<SlidesGenerateFormProps> = ({ form }) => {
   const {
     formValues,
     errors,
@@ -22,7 +21,7 @@ export const SlidesGenerateForm: React.FC<SlidesGenerateFormProps> = ({ onSucces
     handleBlur,
     handleSubmit,
     setUploadContext,
-  } = useSlidesGenerateForm({ onSuccess });
+  } = form;
 
   return (
     <div className="card">
