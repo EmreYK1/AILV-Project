@@ -20,3 +20,13 @@ export interface SlideDraft {
   title: string;
   bullets: string[];
 }
+
+export interface FinalizeSlidesRequest {
+  request_id: string;
+  name: string;
+}
+
+export interface FinalizeSlidesResponse {
+  deck_id: string;
+  saved_slides_count: number;
+}

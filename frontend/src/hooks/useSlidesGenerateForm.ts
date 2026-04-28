@@ -1,7 +1,7 @@
 // src/hooks/useSlidesGenerateForm.ts
 // Verwaltet State, Validierung und Submit für das Folien-Generierungsformular.
 
-import type { ChangeEvent } from 'react';
+import { useState, type ChangeEvent } from 'react';
 import type { Language } from '../types/generate';
 import type {
   SlidesGenerateRequest,
@@ -12,7 +12,7 @@ import {
   type SlidesValidationErrors,
 } from '../validators/slidesGenerateValidator';
 import { useFormWithTouchedValidation } from './useFormWithTouchedValidation';
-import { generateSlides } from '../services/slidesApi';
+import { generateSlides, finalizeSlides } from '../services/slidesApi';
 import { getUserFriendlyMessage } from '../error-handling/errorMappers';
 import { sanitizeToDigitsOnly } from '../utils/inputSanitizer';
 
@@ -67,11 +67,17 @@ export interface UseSlidesGenerateFormReturn {
   handleSubmit: (event: React.FormEvent<HTMLFormElement>) => Promise<void>;
   setUploadContext: (value: string | undefined) => void;
   regenerate: () => Promise<void>;
+  saveSlides: (name: string) => Promise<void>;
+  isSaving: boolean;
+  isSaved: boolean;
 }
 
 export function useSlidesGenerateForm({
   onSuccess,
 }: UseSlidesGenerateFormProps = {}): UseSlidesGenerateFormReturn {
+  const [lastRequestId, setLastRequestId] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
   const submitValues = async (
     values: SlidesFormValues,
     setSubmitError: (err: string | null) => void,
@@ -80,6 +86,8 @@ export function useSlidesGenerateForm({
     setIsLoading(true);
     try {
       const response = await generateSlides(toApiRequest(values));
+      setLastRequestId(response.request_id);
+      setIsSaved(false); // Reset saved state for new generations
       onSuccess?.(response);
     } catch (error) {
       // ApiError/NetworkError/AppError werden hier in menschenlesbare Texte übersetzt
@@ -121,6 +129,22 @@ export function useSlidesGenerateForm({
     await submitValues(base.formValues, base.setSubmitError, base.setIsLoading);
   };
 
+  const saveSlides = async (name: string): Promise<void> => {
+    if (!lastRequestId) return;
+    
+    setIsSaving(true);
+    base.setSubmitError(null); // Clear any previous errors
+
+    try {
+      await finalizeSlides({ request_id: lastRequestId, name });
+      setIsSaved(true);
+    } catch (error) {
+      base.setSubmitError(getUserFriendlyMessage(error));
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return {
     formValues: base.formValues,
     errors: base.errors,
@@ -132,5 +156,8 @@ export function useSlidesGenerateForm({
     handleSubmit: base.handleSubmit,
     setUploadContext,
     regenerate,
+    saveSlides,
+    isSaving,
+    isSaved,
   };
 }

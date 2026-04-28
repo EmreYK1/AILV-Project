@@ -2,13 +2,14 @@
 // Seite für die Folien-Generierung. Steuert Formular, Vorschau und erneutes Generieren.
 
 import React, { useState } from 'react';
-import { SlidesGenerateForm, SlidesPreview } from '../components/slides';
+import { SlidesGenerateForm, SlidesPreview, SlidesSaveDialog } from '../components/slides';
 import { ErrorBanner } from '../components/shared';
 import { useSlidesGenerateForm } from '../hooks/useSlidesGenerateForm';
 import type { SlidesGenerateResponse } from '../types/slides';
 
 export const SlidesGeneratePage: React.FC = () => {
   const [generationResponse, setGenerationResponse] = useState<SlidesGenerateResponse | null>(null);
+  const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
 
   // Nach erfolgreichem Submit: Vorschau anzeigen und Formularwerte im Hook behalten.
   function handleGenerationSuccess(response: SlidesGenerateResponse): void {
@@ -40,6 +41,12 @@ export const SlidesGeneratePage: React.FC = () => {
                 Request-ID: <code>{generationResponse.request_id}</code>
               </p>
 
+              {form.isSaved && (
+                <div className="success-banner" style={{ marginBottom: '1rem', padding: '1rem', backgroundColor: '#e6f4ea', color: '#1e8e3e', borderRadius: '4px' }}>
+                  <strong>Erfolg!</strong> Die Folien wurden dauerhaft gespeichert.
+                </div>
+              )}
+
               <div className="slides-preview__actions">
                 <button
                   type="button"
@@ -66,11 +73,33 @@ export const SlidesGeneratePage: React.FC = () => {
                     'Neu generieren'
                   )}
                 </button>
+
+                {!form.isSaved && (
+                  <button
+                    type="button"
+                    className="primary-button"
+                    onClick={() => setIsSaveDialogOpen(true)}
+                    disabled={form.isSubmitting}
+                  >
+                    Speichern
+                  </button>
+                )}
               </div>
             </div>
 
             <ErrorBanner message={form.submitError} />
           </div>
+
+          <SlidesSaveDialog
+            isOpen={isSaveDialogOpen}
+            onClose={() => setIsSaveDialogOpen(false)}
+            onSave={async (name) => {
+              await form.saveSlides(name);
+              setIsSaveDialogOpen(false);
+            }}
+            defaultTopic={form.formValues.topic}
+            isSaving={form.isSaving}
+          />
         </div>
       ) : (
         <div className="page-form">
