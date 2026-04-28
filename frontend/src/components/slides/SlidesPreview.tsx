@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import type { SlideDraft } from '../types/slides';
+import type { SlideDraft } from '../../types/slides';
 
 interface SlidesPreviewProps {
   slides: SlideDraft[];

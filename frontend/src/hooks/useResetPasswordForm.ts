@@ -1,7 +1,7 @@
 import { resetPassword } from '../services/authApi';
 import { getResetPasswordErrorMessage } from '../error-handling/errorMappers';
 import { validateResetPasswordForm } from '../validators/resetPasswordValidator';
-import { useFormWithTouchedValidation } from '../utils/useFormWithTouchedValidation';
+import { useFormWithTouchedValidation } from './useFormWithTouchedValidation';
 import type { ResetPasswordFormValues } from '../types/auth';
 
 const INITIAL_VALUES: ResetPasswordFormValues = {

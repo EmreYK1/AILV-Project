@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import ArchivePage from '../../pages/ArchivePage';
+import { ArchivePage } from '../../pages/ArchivePage';
 
 // Mocking des Hooks, um verschiedene Zustände zu simulieren
 vi.mock('../../hooks/useArchiveWorkflow', () => ({

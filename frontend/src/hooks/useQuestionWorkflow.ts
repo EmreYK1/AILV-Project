@@ -1,19 +1,18 @@
-// src/hooks/useQuestionWorkflow.ts
 import { useState, useEffect, useRef } from 'react';
 import type { GeneratedQuestion } from '../types/generatedQuestion';
 import type { GenerateRequestFormValues } from '../types/generate';
 import { generateQuestions, finalizeQuestions } from '../services/questionsApi';
 import { calculateQuestionDiff } from '../utils/questionUtils';
 import { getUserFriendlyMessage } from '../error-handling/errorMappers';
-import { DEFAULT_ERROR_MESSAGES, SUCCESS_MESSAGE_DISPLAY_TIME, ESCAPE_KEY } from '../constants/appConstants';
+import { DEFAULT_ERROR_MESSAGES, SUCCESS_MESSAGE_DISPLAY_TIME } from '../constants/appConstants';
 
-// Verwaltet Workflow: Fragen generieren, bearbeiten und finalisieren
+// Verwaltet den Daten-Workflow: Fragen generieren, bearbeiten, finalisieren.
+// UI-spezifischer Modal-State liegt bewusst NICHT mehr hier, sondern auf der Page.
 export function useQuestionWorkflow() {
   const [questions, setQuestions] = useState<GeneratedQuestion[]>([]);
   // Original-Fragen für Diff-Berechnung (nur Änderungen senden)
   const [originalQuestions, setOriginalQuestions] = useState<GeneratedQuestion[]>([]);
   const [requestId, setRequestId] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -22,61 +21,43 @@ export function useQuestionWorkflow() {
   // Verhindert doppelte Finalize-Requests bei schnellen Mehrfach-Events
   const isFinalizingRef = useRef(false);
 
-  // Sendet Formular ans Backend und öffnet Modal mit generierten Fragen
+  // Sendet Formular ans Backend; bei Erfolg landen die Fragen im State.
   const handleFormSubmit = async (values: GenerateRequestFormValues) => {
     setIsLoading(true);
-    setErrorMessage(null); 
+    setErrorMessage(null);
 
     try {
       const result = await generateQuestions(values);
-      // Prüfen, ob Fragen vorhanden sind und alle eine gültige ID haben
       if (!result.questions || result.questions.length === 0) {
         throw new Error('Keine Fragen wurden generiert.');
       }
       if (result.questions.some(q => !q.id)) {
         throw new Error('Ungültige Fragen-Response: Fehlende IDs');
       }
-      // Original-Fragen speichern für spätere Diff-Berechnung
       setQuestions(result.questions);
       setOriginalQuestions(result.questions);
       setRequestId(result.requestId);
-      setIsModalOpen(true);
     } catch (error) {
       console.error('Fehler beim Generieren der Fragen:', error);
-      // Verwende getUserFriendlyMessage für bessere Fehlermeldungen
       setErrorMessage(getUserFriendlyMessage(error));
-      setIsModalOpen(false);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleCloseModal = () => {
-    // Timeout löschen, falls noch aktiv
+  // Verwirft den aktuellen Generierungs-Output und räumt Statusmeldungen auf.
+  // Die Page leitet daraus ab, dass das Modal geschlossen werden muss.
+  const dismissResults = () => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
     }
-    setIsModalOpen(false);
+    setQuestions([]);
+    setOriginalQuestions([]);
+    setRequestId(null);
     setErrorMessage(null);
     setSuccessMessage(null);
   };
-
-  // ESC-Taste schließt das Modal
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === ESCAPE_KEY && isModalOpen) {
-        setIsModalOpen(false);
-        setErrorMessage(null);
-        setSuccessMessage(null);
-      }
-    };
-
-    if (isModalOpen) {
-      document.addEventListener('keydown', handleEscape);
-      return () => document.removeEventListener('keydown', handleEscape);
-    }
-  }, [isModalOpen]);
 
   // Aktualisiert einzelne Frage im Array (findet per ID)
   const handleQuestionChange = (updatedQuestion: GeneratedQuestion) => {
@@ -109,10 +90,8 @@ export function useQuestionWorkflow() {
     setSuccessMessage(null);
 
     try {
-      // Nur Änderungen senden (optimiert Datenübertragung)
       const finalizeQuestionsArray = calculateQuestionDiff(questions, originalQuestions);
-      
-      // Prüfen, ob es Änderungen gibt
+
       if (finalizeQuestionsArray.length === 0) {
         setErrorMessage('Keine Änderungen wurden vorgenommen.');
         setIsLoading(false);
@@ -129,9 +108,9 @@ export function useQuestionWorkflow() {
       setSuccessMessage(`${count} ${count === 1 ? 'Frage' : 'Fragen'} gespeichert. Sie finden sie im Archiv.`);
       // Bereits finalisierte Anfrage sofort invalidieren, um 2. Submit zu verhindern
       setRequestId(null);
-      
-      // Nach 2 Sekunden zurücksetzen (Erfolgsmeldung bleibt sichtbar)
-      // Alten Timeout löschen, falls vorhanden
+
+      // Nach 2 Sekunden Daten zurücksetzen. Die Page erkennt das leere `questions`-Array
+      // und schließt das Modal automatisch.
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
@@ -140,12 +119,10 @@ export function useQuestionWorkflow() {
         setOriginalQuestions([]);
         setRequestId(null);
         setSuccessMessage(null);
-        setIsModalOpen(false);
         timeoutRef.current = null;
       }, SUCCESS_MESSAGE_DISPLAY_TIME);
     } catch (error) {
       console.error('Fehler beim Finalisieren der Fragen:', error);
-      // Verwende getUserFriendlyMessage für bessere Fehlermeldungen
       setErrorMessage(getUserFriendlyMessage(error));
     } finally {
       isFinalizingRef.current = false;
@@ -163,17 +140,14 @@ export function useQuestionWorkflow() {
   }, []);
 
   return {
-    // States
     questions,
     originalQuestions,
     requestId,
-    isModalOpen,
     errorMessage,
     successMessage,
     isLoading,
-    // Handlers
     handleFormSubmit,
-    handleCloseModal,
+    dismissResults,
     handleQuestionChange,
     handleFinalizeQuestions,
   };

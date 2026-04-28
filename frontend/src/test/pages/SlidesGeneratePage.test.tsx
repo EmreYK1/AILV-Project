@@ -1,8 +1,8 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, it, expect, vi } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import ProtectedRoute from '../../components/ProtectedRoute';
-import SlidesGeneratePage from '../../pages/SlidesGeneratePage';
+import { ProtectedRoute } from '../../components/routing';
+import { SlidesGeneratePage } from '../../pages/SlidesGeneratePage';
 import type { SlidesGenerateResponse } from '../../types/slides';
 
 // useAuth wird pro Test mit dem gewuenschten Login-Zustand verdrahtet.

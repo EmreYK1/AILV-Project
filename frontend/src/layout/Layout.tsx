@@ -3,12 +3,13 @@
 import React, { useState } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { ConfirmDialog } from '../components/shared';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children }) => {
+export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
   const [logoutPending, setLogoutPending] = useState(false);
@@ -114,43 +115,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
       </header>
 
-      {logoutPending && (
-        <div
-          className="logout-modal-overlay"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="logout-modal-title"
-          onClick={handleLogoutCancel}
-        >
-          <div
-            className="logout-modal"
-            onClick={function (e) { e.stopPropagation(); }}
-          >
-            <div className="logout-modal-body">
-              <h2 id="logout-modal-title" className="logout-modal-title">Abmelden</h2>
-              <p className="logout-modal-description">
-                Sind Sie sicher, dass Sie sich abmelden möchten?
-              </p>
-            </div>
-            <div className="logout-modal-footer">
-              <button
-                type="button"
-                className="logout-modal-cancel"
-                onClick={handleLogoutCancel}
-              >
-                Abbrechen
-              </button>
-              <button
-                type="button"
-                className="logout-modal-confirm"
-                onClick={handleLogoutConfirm}
-              >
-                Abmelden
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDialog
+        isOpen={logoutPending}
+        title="Abmelden"
+        description="Sind Sie sicher, dass Sie sich abmelden möchten?"
+        confirmLabel="Abmelden"
+        onConfirm={handleLogoutConfirm}
+        onCancel={handleLogoutCancel}
+      />
 
       <main className="app-content">
         {children}
@@ -158,6 +130,4 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     </div>
   );
 };
-
-export default Layout;
 

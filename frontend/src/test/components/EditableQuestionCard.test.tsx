@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import { EditableQuestionCard } from '../../components/EditableQuestionCard';
+import { EditableQuestionCard } from '../../components/generate';
 
 describe('EditableQuestionCard Interactions', () => {
   const mockQuestion = {

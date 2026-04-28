@@ -1,20 +1,19 @@
 // src/App.tsx
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import ProtectedRoute from './components/ProtectedRoute';
-import GuestRoute from './components/GuestRoute';
-import Layout from './layout/Layout';
-import HomePage from './pages/HomePage';
-import GeneratePage from './pages/GeneratePage';
-import SlidesGeneratePage from './pages/SlidesGeneratePage';
-import ArchivePage from './pages/ArchivePage';
-import RegisterPage from './pages/RegisterPage';
-import LoginPage from './pages/LoginPage';
-import ChangePasswordPage from './pages/ChangePasswordPage';
-import ForgotPasswordPage from './pages/ForgotPasswordPage';
-import ResetPasswordPage from './pages/ResetPasswordPage';
+import { ProtectedRoute, GuestRoute } from './components/routing';
+import { Layout } from './layout/Layout';
+import { HomePage } from './pages/HomePage';
+import { GeneratePage } from './pages/GeneratePage';
+import { SlidesGeneratePage } from './pages/SlidesGeneratePage';
+import { ArchivePage } from './pages/ArchivePage';
+import { RegisterPage } from './pages/RegisterPage';
+import { LoginPage } from './pages/LoginPage';
+import { ChangePasswordPage } from './pages/ChangePasswordPage';
+import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
+import { ResetPasswordPage } from './pages/ResetPasswordPage';
 
-const App: React.FC = () => {
+export const App: React.FC = () => {
   return (
     <Layout>
       <Routes>
@@ -74,6 +73,4 @@ const App: React.FC = () => {
     </Layout>
   );
 };
-
-export default App;
 

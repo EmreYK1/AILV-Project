@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import { SlidesPreview } from '../../components/SlidesPreview';
+import { SlidesPreview } from '../../components/slides';
 import type { SlideDraft } from '../../types/slides';
 
 const mockSlides: SlideDraft[] = Array.from({ length: 12 }, (_, index) => ({

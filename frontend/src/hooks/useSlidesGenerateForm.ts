@@ -11,7 +11,7 @@ import {
   validate,
   type SlidesValidationErrors,
 } from '../validators/slidesGenerateValidator';
-import { useFormWithTouchedValidation } from '../utils/useFormWithTouchedValidation';
+import { useFormWithTouchedValidation } from './useFormWithTouchedValidation';
 import { generateSlides } from '../services/slidesApi';
 import { getUserFriendlyMessage } from '../error-handling/errorMappers';
 import { sanitizeToDigitsOnly } from '../utils/inputSanitizer';

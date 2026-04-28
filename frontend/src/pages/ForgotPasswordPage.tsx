@@ -4,7 +4,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useForgotPasswordForm } from '../hooks/useForgotPasswordForm';
 
-const ForgotPasswordPage: React.FC = () => {
+export const ForgotPasswordPage: React.FC = () => {
   const { email, emailError, isLoading, isSuccess, handleChange, handleBlur, handleSubmit } =
     useForgotPasswordForm();
 
@@ -12,13 +12,13 @@ const ForgotPasswordPage: React.FC = () => {
     return (
       <div className="page">
         <h1 className="page-title">E-Mail gesendet</h1>
-        <div className="page-form" style={{ maxWidth: '48rem' }}>
+        <div className="page-form page-form--narrow">
           <div className="card">
             <p>
               Falls diese E-Mail-Adresse bei uns registriert ist, haben wir Ihnen einen Reset-Link
               zugesendet. Bitte prüfen Sie Ihren Posteingang.
             </p>
-            <p className="form-helper" style={{ marginTop: '1.5rem', marginBottom: 0 }}>
+            <p className="form-helper form-helper--flush form-helper--spaced">
               <Link to="/login">Zurück zum Login</Link>
             </p>
           </div>
@@ -34,7 +34,7 @@ const ForgotPasswordPage: React.FC = () => {
         Geben Sie Ihre E-Mail-Adresse ein. Falls ein Konto existiert, erhalten Sie einen Reset-Link.
       </p>
 
-      <div className="page-form" style={{ maxWidth: '48rem' }}>
+      <div className="page-form page-form--narrow">
         <div className="card">
           <form className="form" onSubmit={handleSubmit} noValidate>
             <div className="form-row">
@@ -63,7 +63,7 @@ const ForgotPasswordPage: React.FC = () => {
               {isLoading ? 'Wird gesendet…' : 'Reset-Link anfordern'}
             </button>
 
-            <p className="form-helper" style={{ marginBottom: 0 }}>
+            <p className="form-helper form-helper--flush">
               <Link to="/login">Zurück zum Login</Link>
             </p>
           </form>
@@ -72,5 +72,3 @@ const ForgotPasswordPage: React.FC = () => {
     </div>
   );
 };
-
-export default ForgotPasswordPage;

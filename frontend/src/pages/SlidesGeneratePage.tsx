@@ -2,13 +2,12 @@
 // Seite für die Folien-Generierung. Steuert Formular, Vorschau und erneutes Generieren.
 
 import React, { useState } from 'react';
-import { SlidesGenerateForm } from '../components/SlidesGenerateForm';
-import { SlidesPreview } from '../components/SlidesPreview';
-import { ErrorBanner } from '../components/ErrorBanner';
+import { SlidesGenerateForm, SlidesPreview } from '../components/slides';
+import { ErrorBanner } from '../components/shared';
 import { useSlidesGenerateForm } from '../hooks/useSlidesGenerateForm';
 import type { SlidesGenerateResponse } from '../types/slides';
 
-const SlidesGeneratePage: React.FC = () => {
+export const SlidesGeneratePage: React.FC = () => {
   const [generationResponse, setGenerationResponse] = useState<SlidesGenerateResponse | null>(null);
 
   // Nach erfolgreichem Submit: Vorschau anzeigen und Formularwerte im Hook behalten.
@@ -81,5 +80,3 @@ const SlidesGeneratePage: React.FC = () => {
     </div>
   );
 };
-
-export default SlidesGeneratePage;

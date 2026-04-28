@@ -2,8 +2,8 @@
 // Einzelne Frage-Karte, die bearbeitet werden kann
 
 import React, { useState, useEffect, useRef } from 'react';
-import type { GeneratedQuestion } from '../types/generatedQuestion';
-import { getQuestionTypeLabel } from '../constants/formConstants';
+import type { GeneratedQuestion } from '../../types/generatedQuestion';
+import { getQuestionTypeLabel } from '../../constants/formConstants';
 
 // Interface für die Props dieser Komponente
 interface EditableQuestionCardProps {
@@ -140,7 +140,7 @@ export const EditableQuestionCard: React.FC<EditableQuestionCardProps> = ({
                 >
                   {String.fromCharCode(65 + index)})
                 </label>
-                <div style={{ flex: 1, position: 'relative' }}>
+                <div className="question-choice-content">
                   <textarea
                     ref={(el) => {
                       const key = `choice-${localQuestion.id}-${index}`;
