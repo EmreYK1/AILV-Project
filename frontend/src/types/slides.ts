@@ -30,3 +30,38 @@ export interface FinalizeSlidesResponse {
   deck_id: string;
   saved_slides_count: number;
 }
+
+export interface DeckSlideItem {
+  id: string;
+  position: number;
+  slide_type: string | null;
+  title: string | null;
+  bullets: string[];
+  created_at: string | null;
+}
+
+export interface DeckListItem {
+  id: string;
+  request_id: string | null;
+  name: string;
+  created_at: string | null;
+  slide_count: number;
+}
+
+export interface DeckListResponse {
+  decks: DeckListItem[];
+}
+
+export interface DeckDetailResponse {
+  id: string;
+  request_id: string | null;
+  name: string;
+  created_at: string | null;
+  slides: DeckSlideItem[];
+}
+
+export interface DeckDeleteResponse {
+  success: boolean;
+  deck_id: string;
+  message: string;
+}

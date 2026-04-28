@@ -1,11 +1,14 @@
 // src/services/slidesApi.ts
-// API-Calls für die Folien-Generierung.
+// API-Calls für Folien: generieren, speichern und archivierte Decks laden.
 
 import type {
   SlidesGenerateRequest,
   SlidesGenerateResponse,
   FinalizeSlidesRequest,
   FinalizeSlidesResponse,
+  DeckListResponse,
+  DeckDetailResponse,
+  DeckDeleteResponse,
 } from '../types/slides';
 import { toNumber } from '../utils/numberUtils';
 import { apiCall, API_BASE_URL } from './apiClient';
@@ -44,6 +47,33 @@ export async function finalizeSlides(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(request),
+    }
+  );
+}
+
+export async function listDecks(): Promise<DeckListResponse> {
+  return await apiCall<DeckListResponse>(
+    `${API_BASE_URL}/api/slides/archive`,
+    {
+      method: 'GET',
+    }
+  );
+}
+
+export async function getDeck(deckId: string): Promise<DeckDetailResponse> {
+  return await apiCall<DeckDetailResponse>(
+    `${API_BASE_URL}/api/slides/archive/${deckId}`,
+    {
+      method: 'GET',
+    }
+  );
+}
+
+export async function deleteDeck(deckId: string): Promise<DeckDeleteResponse> {
+  return await apiCall<DeckDeleteResponse>(
+    `${API_BASE_URL}/api/slides/archive/${deckId}`,
+    {
+      method: 'DELETE',
     }
   );
 }

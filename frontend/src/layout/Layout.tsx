@@ -64,6 +64,18 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                   </NavLink>
                 </li>
               )}
+              {isAuthenticated && (
+                <li className="app-nav-item">
+                  <NavLink
+                    to="/slides/archive"
+                    className={function ({ isActive }) {
+                      return 'app-nav-link' + (isActive ? ' app-nav-link--active' : '');
+                    }}
+                  >
+                    Folien-Archiv
+                  </NavLink>
+                </li>
+              )}
               <li className="app-nav-item">
                 <NavLink
                   to="/archive"
