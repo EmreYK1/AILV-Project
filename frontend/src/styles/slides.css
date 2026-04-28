@@ -267,6 +267,35 @@
   flex-wrap: wrap;
 }
 
+.slides-save-dialog-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.slides-save-dialog-help {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.slides-save-dialog-help .form-error-message {
+  margin-top: 0;
+}
+
+.slides-save-dialog-counter {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.slides-save-dialog-actions {
+  align-items: center;
+}
+
 @keyframes slidesPreviewFade {
   from {
     opacity: 0;

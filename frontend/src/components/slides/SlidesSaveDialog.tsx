@@ -46,29 +46,37 @@ export function SlidesSaveDialog({
     >
       <form onSubmit={handleSubmit} className="slides-save-dialog-form">
         <div className="form-group">
-          <label htmlFor="deckName">Name des Folien-Decks</label>
+          <label htmlFor="deckName" className="form-label">
+            Name des Folien-Decks
+          </label>
           <input
             type="text"
             id="deckName"
-            className="form-control"
+            className={`form-input${validationError && name.length > 0 ? ' form-input--error' : ''}`}
             value={name}
             onChange={(e) => setName(e.target.value)}
             disabled={isSaving}
             autoFocus
             maxLength={MAX_DECK_NAME_LENGTH}
           />
-          <small className="form-help">
-            {validationError && name.length > 0 && (
-              <span className="text-error">{validationError} </span>
+          <div className="slides-save-dialog-help">
+            {validationError && name.length > 0 ? (
+              <span className="form-error-message">{validationError}</span>
+            ) : (
+              <span className="form-helper">
+                Geben Sie einen aussagekräftigen Namen ein, um das Deck später wiederzufinden.
+              </span>
             )}
-            {name.length}/{MAX_DECK_NAME_LENGTH} Zeichen
-          </small>
+            <span className="slides-save-dialog-counter">
+              {name.length}/{MAX_DECK_NAME_LENGTH} Zeichen
+            </span>
+          </div>
         </div>
 
-        <div className="modal-actions" style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+        <div className="questions-modal-actions slides-save-dialog-actions">
           <button
             type="button"
-            className="btn btn-secondary"
+            className="secondary-button"
             onClick={onClose}
             disabled={isSaving}
           >
@@ -76,7 +84,7 @@ export function SlidesSaveDialog({
           </button>
           <button
             type="submit"
-            className="btn btn-primary"
+            className="primary-button"
             disabled={!isValid || isSaving}
           >
             {isSaving ? 'Wird gespeichert...' : 'Speichern'}
