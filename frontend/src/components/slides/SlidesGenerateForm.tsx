@@ -2,16 +2,14 @@
 // Darstellung des Folien-Generierungsformulars. Logik: useSlidesGenerateForm.
 
 import React from 'react';
-import type { SlidesGenerateResponse } from '../types/slides';
-import { useSlidesGenerateForm } from '../hooks/useSlidesGenerateForm';
-import { ErrorBanner } from './ErrorBanner';
-import { PdfUpload } from './PdfUpload';
+import type { UseSlidesGenerateFormReturn } from '../../hooks/useSlidesGenerateForm';
+import { ErrorBanner, PdfUpload } from '../shared';
 
 interface SlidesGenerateFormProps {
-  onSuccess?: (response: SlidesGenerateResponse) => void;
+  form: UseSlidesGenerateFormReturn;
 }
 
-export const SlidesGenerateForm: React.FC<SlidesGenerateFormProps> = ({ onSuccess }) => {
+export const SlidesGenerateForm: React.FC<SlidesGenerateFormProps> = ({ form }) => {
   const {
     formValues,
     errors,
@@ -22,7 +20,7 @@ export const SlidesGenerateForm: React.FC<SlidesGenerateFormProps> = ({ onSucces
     handleBlur,
     handleSubmit,
     setUploadContext,
-  } = useSlidesGenerateForm({ onSuccess });
+  } = form;
 
   return (
     <div className="card">
@@ -133,34 +131,25 @@ export const SlidesGenerateForm: React.FC<SlidesGenerateFormProps> = ({ onSucces
         </div>
 
         <div
-          className="form-row"
-          style={{
-            padding: '1.5rem',
-            backgroundColor: '#f8fafc',
-            borderRadius: '8px',
-            border: '1px solid #e2e8f0',
-            marginBottom: '2rem',
-          }}
+          className="form-row form-upload-section"
         >
-          <p className="form-section-title" style={{ marginTop: 0 }}>
+          <p className="form-section-title form-section-title--flush">
             Dokumenten-Kontext (PDF)
           </p>
           <PdfUpload onExtractedText={setUploadContext} />
 
           {formValues.uploadContext && (
-            <div style={{ marginTop: '1rem' }}>
+            <div className="form-upload-preview">
               <label className="form-label">Extrahierter Text bereit für die Generierung</label>
               <textarea
-                className="form-input"
+                className="form-input form-input--readonly"
                 readOnly
                 rows={5}
                 value={formValues.uploadContext}
-                style={{ backgroundColor: '#edf2f7', color: '#4a5568', cursor: 'not-allowed' }}
               />
               <button
                 type="button"
-                className="primary-button"
-                style={{ marginTop: '1rem', backgroundColor: '#e53e3e' }}
+                className="primary-button danger-button"
                 onClick={() => setUploadContext(undefined)}
                 disabled={isSubmitting}
               >
@@ -186,7 +175,7 @@ export const SlidesGenerateForm: React.FC<SlidesGenerateFormProps> = ({ onSucces
           )}
         </button>
 
-        <ErrorBanner message={submitError} style={{ marginTop: '1rem' }} />
+        <ErrorBanner message={submitError} />
       </form>
     </div>
   );

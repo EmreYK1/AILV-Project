@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import type { ChangePasswordFormValues } from '../types/auth';
 import { getChangePasswordErrorMessage } from '../error-handling/errorMappers';
 import { validateChangePasswordForm } from '../validators/changePasswordValidator';
-import { useFormWithTouchedValidation } from '../utils/useFormWithTouchedValidation';
+import { useFormWithTouchedValidation } from './useFormWithTouchedValidation';
 
 const INITIAL_VALUES: ChangePasswordFormValues = {
   currentPassword: '',

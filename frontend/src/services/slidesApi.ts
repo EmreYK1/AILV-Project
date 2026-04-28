@@ -1,7 +1,12 @@
 // src/services/slidesApi.ts
 // API-Calls für die Folien-Generierung.
 
-import type { SlidesGenerateRequest, SlidesGenerateResponse } from '../types/slides';
+import type {
+  SlidesGenerateRequest,
+  SlidesGenerateResponse,
+  FinalizeSlidesRequest,
+  FinalizeSlidesResponse,
+} from '../types/slides';
 import { toNumber } from '../utils/numberUtils';
 import { apiCall, API_BASE_URL } from './apiClient';
 
@@ -24,6 +29,21 @@ export async function generateSlides(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(payload),
+    }
+  );
+}
+
+export async function finalizeSlides(
+  request: FinalizeSlidesRequest
+): Promise<FinalizeSlidesResponse> {
+  return await apiCall<FinalizeSlidesResponse>(
+    `${API_BASE_URL}/api/slides/finalize`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
     }
   );
 }

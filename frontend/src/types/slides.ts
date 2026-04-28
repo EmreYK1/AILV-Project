@@ -11,6 +11,7 @@ export interface SlidesGenerateRequest {
 export interface SlidesGenerateResponse {
   status: string;
   request_id: string;
+  slides: SlideDraft[];
 }
 
 export interface SlideDraft {
@@ -18,4 +19,14 @@ export interface SlideDraft {
   slide_type: string;
   title: string;
   bullets: string[];
+}
+
+export interface FinalizeSlidesRequest {
+  request_id: string;
+  name: string;
+}
+
+export interface FinalizeSlidesResponse {
+  deck_id: string;
+  saved_slides_count: number;
 }

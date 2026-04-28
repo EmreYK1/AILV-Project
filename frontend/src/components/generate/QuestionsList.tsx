@@ -1,7 +1,7 @@
 // src/components/QuestionsList.tsx
 // Container, der alle generierten Fragen anzeigt und verwaltet.
 import React, { useState } from 'react';
-import type { GeneratedQuestion } from '../types/generatedQuestion';
+import type { GeneratedQuestion } from '../../types/generatedQuestion';
 import { EditableQuestionCard } from './EditableQuestionCard';
 
 // Definiert, welche Daten (Props) diese Komponente von außen erhält
@@ -54,7 +54,7 @@ export const QuestionsList: React.FC<QuestionsListProps> = ({
 
       {/* Button anzeigen, wenn es mindestens eine MCQ oder TRUE_FALSE-Frage mit richtiger Antwort gibt */}
       {questions.some((q) => (q.type === 'MCQ' || q.type === 'TRUE_FALSE') && q.correct_index !== undefined) && (
-        <div style={{ marginTop: 'var(--spacing-lg)', textAlign: 'center' }}>
+        <div className="questions-toggle-wrapper">
           <button
             type="button"
             className="secondary-button"

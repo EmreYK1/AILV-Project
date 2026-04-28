@@ -1,6 +1,11 @@
 @import './base.css';
 @import './layout.css';
-@import './components.css';
+@import './page.css';
+@import './forms.css';
+@import './buttons.css';
+@import './banners.css';
+@import './modal.css';
+@import './shared.css';
+@import './slides.css';
 @import './questions.css';
 @import './archive.css';
-

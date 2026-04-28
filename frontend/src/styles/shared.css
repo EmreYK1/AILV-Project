@@ -1,0 +1,203 @@
+/* Confirm Dialog – wiederverwendbar für Logout, Delete, etc. */
+/* Ersetzt die duplizierten logout-modal-* Klassen */
+.confirm-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-lg);
+  z-index: 3000;
+  backdrop-filter: blur(8px);
+  animation: fadeIn var(--transition-base);
+}
+
+.confirm-dialog {
+  background: var(--color-bg-card);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-2xl);
+  padding: var(--spacing-2xl);
+  max-width: 420px;
+  width: 100%;
+  animation: slideUp var(--transition-slow) ease-out;
+  border: 1px solid var(--color-border);
+}
+
+.confirm-dialog-body {
+  margin-bottom: var(--spacing-xl);
+}
+
+.confirm-dialog-title {
+  margin: 0 0 var(--spacing-sm) 0;
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.confirm-dialog-description {
+  margin: 0;
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+.confirm-dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-md);
+}
+
+.confirm-dialog-cancel {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  background: var(--color-bg-card);
+  color: var(--color-text-secondary);
+  border: 2px solid var(--color-border);
+  transition: all var(--transition-base);
+}
+
+.confirm-dialog-cancel:hover {
+  background: var(--color-border-light);
+  border-color: var(--color-text-muted);
+}
+
+.confirm-dialog-cancel:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.confirm-dialog-confirm {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  background: linear-gradient(135deg, var(--color-error) 0%, #dc2626 100%);
+  color: #ffffff;
+  border: none;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+}
+
+.confirm-dialog-confirm:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.confirm-dialog-confirm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Form Helper Modifiers */
+.form-helper--normal {
+  font-style: normal;
+}
+
+.form-helper--spaced {
+  margin-bottom: var(--spacing-md);
+}
+
+.form-helper--flush {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* Form Section Title Modifiers */
+.form-section-title--flush {
+  margin-top: 0;
+}
+
+/* Upload Section */
+.form-upload-section {
+  padding: var(--spacing-lg);
+  background-color: var(--color-bg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  margin-bottom: var(--spacing-xl);
+}
+
+.form-upload-preview {
+  margin-top: var(--spacing-md);
+}
+
+/* Read-only input */
+.form-input--readonly {
+  background-color: var(--color-border-light);
+  color: var(--color-text-secondary);
+  cursor: not-allowed;
+}
+
+/* Danger Button (z. B. "PDF-Kontext entfernen") */
+.danger-button {
+  margin-top: var(--spacing-md);
+  background: linear-gradient(135deg, var(--color-error) 0%, #dc2626 100%);
+}
+
+.danger-button:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
+
+/* Page Form narrow variant (Auth-Seiten) */
+.page-form--narrow {
+  max-width: 48rem;
+}
+
+/* Warning Banner */
+.warning-banner {
+  margin-bottom: var(--spacing-md);
+  padding: 0.75rem var(--spacing-md);
+  background-color: #fff7ed;
+  color: #9a3412;
+  border: 1px solid #fdba74;
+  border-radius: var(--radius-md);
+}
+
+/* PDF Upload */
+.pdf-upload-container {
+  margin-bottom: var(--spacing-lg);
+}
+
+.pdf-upload-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+
+.pdf-upload-input {
+  flex: 1;
+}
+
+.pdf-upload-button {
+  white-space: nowrap;
+}
+
+/* Questions toggle button wrapper */
+.questions-toggle-wrapper {
+  margin-top: var(--spacing-lg);
+  text-align: center;
+}
+
+/* Choice flex wrapper */
+.question-choice-content {
+  flex: 1;
+  position: relative;
+}
+
+/* Archive Search */
+.archive-search-wrapper {
+  margin-bottom: var(--spacing-lg);
+  max-width: 36rem;
+}
+
+/* Success banner in modal (GeneratePage) */
+.success-banner--modal {
+  width: 100%;
+  margin-bottom: var(--spacing-md);
+}

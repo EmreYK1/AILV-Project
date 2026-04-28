@@ -3,12 +3,11 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PasswordStrengthMeter } from '../components/PasswordStrengthMeter';
-import { ErrorBanner } from '../components/ErrorBanner';
-import { PasswordVisibilityToggle } from '../components/PasswordVisibilityToggle';
+import { PasswordStrengthMeter, PasswordVisibilityToggle } from '../components/auth';
+import { ErrorBanner } from '../components/shared';
 import { useRegisterForm } from '../hooks/useRegisterForm';
 
-const RegisterPage: React.FC = () => {
+export const RegisterPage: React.FC = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
   const navigate = useNavigate();
@@ -31,7 +30,7 @@ const RegisterPage: React.FC = () => {
       Erstellen Sie ein Konto und starten Sie direkt mit der Generierung von LV-Unterlagen.
       </p>
 
-      <div className="page-form" style={{ maxWidth: '48rem' }}>
+      <div className="page-form page-form--narrow">
         <div className="card">
           <form className="form" onSubmit={handleSubmit} noValidate autoComplete="on">
             <div className="form-row">
@@ -78,7 +77,7 @@ const RegisterPage: React.FC = () => {
               <label className="form-label" htmlFor="password">
                 Passwort *
               </label>
-              <p id="register-password-tips" className="form-helper" style={{ marginTop: 0 }}>
+              <p id="register-password-tips" className="form-helper form-helper--flush">
                 Mindestens 8 Zeichen. Ein starkes Passwort mischt Groß-/Kleinbuchstaben, Ziffern und
                 gern Sonderzeichen.
               </p>
@@ -150,12 +149,10 @@ const RegisterPage: React.FC = () => {
               {isLoading ? 'Registrierung läuft...' : 'Konto erstellen'}
             </button>
 
-            <ErrorBanner message={submitError} style={{ marginTop: '1rem' }} />
+            <ErrorBanner message={submitError} />
           </form>
         </div>
       </div>
     </div>
   );
 };
-
-export default RegisterPage;

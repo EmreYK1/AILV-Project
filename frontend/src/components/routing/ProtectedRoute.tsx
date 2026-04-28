@@ -1,13 +1,13 @@
 // src/components/ProtectedRoute.tsx
 // Schuetzt Seiten vor unberechtigtem Zugriff und leitet Gaeste auf die Login-Seite um
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
-export default function ProtectedRoute({ children }: ProtectedRouteProps) {
+export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
 

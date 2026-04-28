@@ -4,10 +4,10 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import { useLoginForm } from '../hooks/useLoginForm';
-import { ErrorBanner } from '../components/ErrorBanner';
-import { PasswordVisibilityToggle } from '../components/PasswordVisibilityToggle';
+import { ErrorBanner } from '../components/shared';
+import { PasswordVisibilityToggle } from '../components/auth';
 
-function LoginPage() {
+export function LoginPage() {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -51,7 +51,7 @@ function LoginPage() {
         </div>
       )}
 
-      <div className="page-form" style={{ maxWidth: '48rem' }}>
+      <div className="page-form page-form--narrow">
         <div className="card">
           <form className="form" onSubmit={handleSubmit} noValidate autoComplete="on">
             <div className="form-row">
@@ -108,12 +108,12 @@ function LoginPage() {
               {isLoading ? 'Login läuft...' : 'Einloggen'}
             </button>
 
-            <ErrorBanner message={submitError} style={{ marginTop: '1rem' }} />
+            <ErrorBanner message={submitError} />
 
-            <p className="form-helper" style={{ marginBottom: 0 }}>
+            <p className="form-helper form-helper--flush">
               <Link to="/forgot-password">Passwort vergessen?</Link>
             </p>
-            <p className="form-helper" style={{ marginBottom: 0 }}>
+            <p className="form-helper form-helper--flush">
               Noch kein Konto?{' '}
               <Link to="/register">
                 Zur Registrierung
@@ -125,5 +125,3 @@ function LoginPage() {
     </div>
   );
 }
-
-export default LoginPage;

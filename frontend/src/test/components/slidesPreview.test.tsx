@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import { SlidesPreview } from '../../components/SlidesPreview';
+import { SlidesPreview } from '../../components/slides';
 import type { SlideDraft } from '../../types/slides';
 
 const mockSlides: SlideDraft[] = Array.from({ length: 12 }, (_, index) => ({
@@ -69,8 +69,8 @@ describe('SlidesPreview Component', () => {
   it('zeigt Titel und Bullets getrennt an', () => {
     render(<SlidesPreview slides={mockSlides} />);
   
-    expect(screen.getByRole('heading', { name: 'Titel Folie 1' })).toHaveClass('slides-preview-title');
-    expect(screen.getByRole('list')).toHaveClass('slides-preview-bullets');
+    expect(screen.getByRole('heading', { name: 'Titel Folie 1' })).toHaveClass('slides-preview__title');
+    expect(screen.getByRole('list')).toHaveClass('slides-preview__bullets');
     expect(screen.getByText('Bullet 1.1')).toBeInTheDocument();
   });
 });

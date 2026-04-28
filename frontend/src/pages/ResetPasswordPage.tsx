@@ -2,11 +2,11 @@
 
 import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { ErrorBanner } from '../components/ErrorBanner';
-import { PasswordVisibilityToggle } from '../components/PasswordVisibilityToggle';
+import { ErrorBanner } from '../components/shared';
+import { PasswordVisibilityToggle } from '../components/auth';
 import { useResetPasswordForm } from '../hooks/useResetPasswordForm';
 
-const ResetPasswordPage: React.FC = () => {
+export const ResetPasswordPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const token = searchParams.get('token') ?? '';
@@ -25,10 +25,10 @@ const ResetPasswordPage: React.FC = () => {
     return (
       <div className="page">
         <h1 className="page-title">Ungültiger Link</h1>
-        <div className="page-form" style={{ maxWidth: '48rem' }}>
+        <div className="page-form page-form--narrow">
           <div className="card">
             <p>Dieser Reset-Link ist ungültig. Bitte fordern Sie einen neuen an.</p>
-            <p className="form-helper" style={{ marginTop: '1.5rem', marginBottom: 0 }}>
+            <p className="form-helper form-helper--flush form-helper--spaced">
               <Link to="/forgot-password">Neuen Reset-Link anfordern</Link>
             </p>
           </div>
@@ -44,7 +44,7 @@ const ResetPasswordPage: React.FC = () => {
         Geben Sie Ihr neues Passwort ein. Nach dem Speichern werden Sie zum Login weitergeleitet.
       </p>
 
-      <div className="page-form" style={{ maxWidth: '48rem' }}>
+      <div className="page-form page-form--narrow">
         <div className="card">
           <form className="form" onSubmit={handleSubmit} noValidate autoComplete="on">
             <div className="form-row">
@@ -105,12 +105,10 @@ const ResetPasswordPage: React.FC = () => {
               {isLoading ? 'Passwort wird gespeichert…' : 'Passwort speichern'}
             </button>
 
-            <ErrorBanner message={submitError} style={{ marginTop: '1rem' }} />
+            <ErrorBanner message={submitError} />
           </form>
         </div>
       </div>
     </div>
   );
 };
-
-export default ResetPasswordPage;

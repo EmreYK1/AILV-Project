@@ -2,11 +2,11 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ErrorBanner } from '../components/ErrorBanner';
-import { PasswordVisibilityToggle } from '../components/PasswordVisibilityToggle';
+import { ErrorBanner } from '../components/shared';
+import { PasswordVisibilityToggle } from '../components/auth';
 import { useChangePasswordForm } from '../hooks/useChangePasswordForm';
 
-const ChangePasswordPage: React.FC = () => {
+export const ChangePasswordPage: React.FC = () => {
   const navigate = useNavigate();
   const [currentVisible, setCurrentVisible] = useState(false);
   const [newVisible, setNewVisible] = useState(false);
@@ -32,7 +32,7 @@ const ChangePasswordPage: React.FC = () => {
         dem neuen Passwort wieder anmelden.
       </p>
 
-      <div className="page-form" style={{ maxWidth: '48rem' }}>
+      <div className="page-form page-form--narrow">
         <div className="card">
           <form className="form" onSubmit={handleSubmit} noValidate autoComplete="on">
             <div className="form-row">
@@ -65,7 +65,7 @@ const ChangePasswordPage: React.FC = () => {
               <label className="form-label" htmlFor="newPassword">
                 Neues Passwort *
               </label>
-              <p className="form-helper" style={{ marginTop: 0 }}>
+              <p className="form-helper form-helper--flush">
                 Mindestens 8 Zeichen, wie bei der Registrierung.
               </p>
               <div className="form-input-wrapper form-input-wrapper--password">
@@ -124,12 +124,10 @@ const ChangePasswordPage: React.FC = () => {
               {isLoading ? 'Passwort wird geändert…' : 'Passwort ändern'}
             </button>
 
-            <ErrorBanner message={submitError} style={{ marginTop: '1rem' }} />
+            <ErrorBanner message={submitError} />
           </form>
         </div>
       </div>
     </div>
   );
 };
-
-export default ChangePasswordPage;

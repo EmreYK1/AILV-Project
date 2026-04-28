@@ -1,6 +1,6 @@
-// src/components/PdfUpload.tsx
+// src/components/shared/PdfUpload.tsx
 import React from 'react';
-import { usePdfUpload } from '../hooks/usePdfUpload';
+import { usePdfUpload } from '../../hooks/usePdfUpload';
 import { ErrorBanner } from './ErrorBanner';
 
 interface PdfUploadProps {
@@ -14,24 +14,14 @@ export const PdfUpload: React.FC<PdfUploadProps> = ({ onExtractedText }) => {
   });
 
   return (
-    <div className="pdf-upload-container" style={{ marginBottom: '1.5rem' }}>
-      <p className="form-helper" style={{ marginBottom: '1rem', fontStyle: 'normal' }}>
+    <div className="pdf-upload-container">
+      <p className="form-helper form-helper--normal">
         Optional: Wählen Sie eine PDF-Datei aus, um deren Inhalt als Kontext für die Fragengenerierung zu nutzen.
       </p>
       
-      <ErrorBanner message={error} style={{ marginBottom: '1rem' }} />
+      <ErrorBanner message={error} />
       {wasTruncated && (
-        <div
-          role="status"
-          style={{
-            marginBottom: '1rem',
-            padding: '0.75rem 1rem',
-            backgroundColor: '#fff7ed',
-            color: '#9a3412',
-            border: '1px solid #fdba74',
-            borderRadius: '6px',
-          }}
-        >
+        <div className="warning-banner" role="status">
           Der PDF-Text wurde auf 5.000 Zeichen gekürzt.
         </div>
       )}
@@ -40,22 +30,20 @@ export const PdfUpload: React.FC<PdfUploadProps> = ({ onExtractedText }) => {
         <label className="form-label" htmlFor="pdf-upload">
           PDF-Datei
         </label>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+        <div className="pdf-upload-actions">
           <input 
             id="pdf-upload"
             type="file" 
             accept="application/pdf"
             onChange={handleFileChange}
             disabled={loading}
-            className="form-input"
-            style={{ flex: 1 }}
+            className="form-input pdf-upload-input"
           />
           <button 
             type="button"
             onClick={handleUpload} 
             disabled={!file || loading}
-            className="primary-button"
-            style={{ whiteSpace: 'nowrap' }}
+            className="primary-button pdf-upload-button"
           >
             {loading ? 'Lade hoch...' : 'Hochladen'}
           </button>

@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const HomePage: React.FC = () => {
+export const HomePage: React.FC = () => {
   const { isAuthenticated } = useAuth();
 
   return (
@@ -32,6 +32,4 @@ const HomePage: React.FC = () => {
     </div>
   );
 };
-
-export default HomePage;
 

@@ -2,8 +2,8 @@
 // Komponente für die Darstellung eines Archiv-Themas als Card
 
 import React from 'react';
-import type { ArchiveTopic } from '../types/api';
-import { getQuestionTypeLabel } from '../constants/formConstants';
+import type { ArchiveTopic } from '../../types/api';
+import { getQuestionTypeLabel } from '../../constants/formConstants';
 
 // Interface für die Props dieser Komponente
 interface ArchiveTopicCardProps {

@@ -98,6 +98,8 @@ export function useFormWithTouchedValidation<
     errors,
     submitError,
     isLoading,
+    setSubmitError,
+    setIsLoading,
     handleInputChange,
     handleBlur,
     handleSubmit,
