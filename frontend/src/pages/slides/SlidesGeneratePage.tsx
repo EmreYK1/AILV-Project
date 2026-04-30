@@ -3,17 +3,19 @@
 
 import React, { useState } from 'react';
 import { SlidesGenerateForm, SlidesPreview, SlidesSaveDialog } from '../../components/slides';
-import { ErrorBanner, Modal } from '../../components/shared';
+import { ErrorBanner, Modal, GenerationSkeleton } from '../../components/shared';
 import { useSlidesGenerateForm } from '../../hooks/slides/useSlidesGenerateForm';
 import type { SlidesGenerateResponse } from '../../types/slides';
 
 export const SlidesGeneratePage: React.FC = () => {
   const [generationResponse, setGenerationResponse] = useState<SlidesGenerateResponse | null>(null);
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   // Nach erfolgreichem Submit: Vorschau-Modal anzeigen.
   function handleGenerationSuccess(response: SlidesGenerateResponse): void {
     setGenerationResponse(response);
+    setIsEditing(false); // Reset editing state on new generation
   }
 
   const form = useSlidesGenerateForm({ onSuccess: handleGenerationSuccess });
@@ -21,10 +23,18 @@ export const SlidesGeneratePage: React.FC = () => {
   // Schließt das Vorschau-Modal und kehrt zum Formular zurück.
   function handleDismissPreview(): void {
     setGenerationResponse(null);
+    setIsEditing(false);
   }
 
-  // Modal ist geöffnet, sobald eine Generierungsantwort vorliegt.
-  const isPreviewOpen = generationResponse !== null;
+  // Modal ist geöffnet, sobald eine Generierungsantwort vorliegt ODER geladen wird.
+  const isPreviewOpen = generationResponse !== null || form.isSubmitting;
+
+  function handleSlideChange(index: number, updatedSlide: import('../../types/slides').SlideDraft): void {
+    if (!generationResponse) return;
+    const newSlides = [...generationResponse.slides];
+    newSlides[index] = updatedSlide;
+    setGenerationResponse({ ...generationResponse, slides: newSlides });
+  }
 
   return (
     <div className="page">
@@ -38,7 +48,7 @@ export const SlidesGeneratePage: React.FC = () => {
         <SlidesGenerateForm form={form} />
       </div>
 
-      {/* Vorschau-Modal – erscheint nach erfolgreicher Generierung */}
+      {/* Vorschau-Modal – erscheint nach erfolgreicher Generierung oder währenddessen */}
       <Modal
         isOpen={isPreviewOpen}
         title="Generierte Folien"
@@ -46,15 +56,20 @@ export const SlidesGeneratePage: React.FC = () => {
         size="large"
         labelledById="slides-preview-title"
       >
-        {generationResponse && (
+        {form.isSubmitting && !generationResponse ? (
+          <GenerationSkeleton
+            count={1}
+            message="KI generiert Präsentationsfolien …"
+          />
+        ) : generationResponse ? (
           <>
-            <SlidesPreview slides={generationResponse.slides} />
+            <SlidesPreview 
+              slides={generationResponse.slides} 
+              isEditing={isEditing} 
+              onSlideChange={handleSlideChange} 
+            />
 
             <div className="slides-preview__meta">
-              <p className="form-helper slides-preview__request-id">
-                Request-ID: <code>{generationResponse.request_id}</code>
-              </p>
-
               {form.isSaved && (
                 <div
                   className="success-banner success-banner--modal"
@@ -68,18 +83,10 @@ export const SlidesGeneratePage: React.FC = () => {
                 <button
                   type="button"
                   className="secondary-button"
-                  onClick={handleDismissPreview}
-                  disabled={form.isSubmitting}
-                >
-                  Eingaben ändern
-                </button>
-
-                <button
-                  type="button"
-                  className="primary-button"
                   onClick={form.regenerate}
                   disabled={form.isSubmitting}
                   aria-busy={form.isSubmitting}
+                  style={{ marginRight: 'auto' }}
                 >
                   {form.isSubmitting ? (
                     <span className="form-submit-button__loading">
@@ -92,21 +99,32 @@ export const SlidesGeneratePage: React.FC = () => {
                 </button>
 
                 {!form.isSaved && (
-                  <button
-                    type="button"
-                    className="primary-button"
-                    onClick={() => setIsSaveDialogOpen(true)}
-                    disabled={form.isSubmitting}
-                  >
-                    Speichern
-                  </button>
+                  isEditing ? (
+                    <button
+                      type="button"
+                      className="primary-button"
+                      onClick={() => setIsSaveDialogOpen(true)}
+                      disabled={form.isSubmitting}
+                    >
+                      Speichern
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="primary-button"
+                      onClick={() => setIsEditing(true)}
+                      disabled={form.isSubmitting}
+                    >
+                      Folien bearbeiten
+                    </button>
+                  )
                 )}
               </div>
             </div>
 
             <ErrorBanner message={form.submitError} />
           </>
-        )}
+        ) : null}
       </Modal>
 
       {/* Speichern-Dialog – wird aus dem Vorschau-Modal heraus geöffnet */}

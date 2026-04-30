@@ -14,23 +14,16 @@ export const usePdfUpload = ({ onExtractedText }: UsePdfUploadProps) => {
   const [error, setError] = useState<string | null>(null);
   const [wasTruncated, setWasTruncated] = useState(false);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setFile(e.target.files[0]);
-      setError(null);
-      setWasTruncated(false);
-    }
-  };
-
-  const handleUpload = async () => {
-    if (!file) return;
+  const handleUpload = async (fileToUpload?: File) => {
+    const targetFile = fileToUpload || file;
+    if (!targetFile) return;
 
     setLoading(true);
     setError(null);
 
     try {
       // API-Call ausführen
-      const response = await uploadPdf(file);
+      const response = await uploadPdf(targetFile);
       setWasTruncated(response.was_truncated);
       // Callback der Eltern-Komponente auslösen
       onExtractedText(response.extracted_text);
@@ -39,6 +32,18 @@ export const usePdfUpload = ({ onExtractedText }: UsePdfUploadProps) => {
       setWasTruncated(false);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const selectedFile = e.target.files[0];
+      setFile(selectedFile);
+      setError(null);
+      setWasTruncated(false);
+      
+      // Automatisch hochladen und extrahieren
+      handleUpload(selectedFile);
     }
   };
 

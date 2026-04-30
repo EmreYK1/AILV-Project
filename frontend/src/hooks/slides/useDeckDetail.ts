@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getDeck, deleteDeck } from '../../services/slidesApi';
-import type { DeckDetailResponse } from '../../types/slides';
+import { getDeck, deleteDeck, updateDeck } from '../../services/slidesApi';
+import type { DeckDetailResponse, SlideDraft } from '../../types/slides';
 
 export function useDeckDetail(deckId: string | undefined) {
   const navigate = useNavigate();
@@ -11,6 +11,8 @@ export function useDeckDetail(deckId: string | undefined) {
   const [error, setError] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [updateSuccess, setUpdateSuccess] = useState(false);
 
   useEffect(() => {
     async function loadDeck() {
@@ -46,6 +48,24 @@ export function useDeckDetail(deckId: string | undefined) {
     }
   };
 
+  const handleUpdateDeck = async (slides: SlideDraft[]) => {
+    if (!deckId) return;
+
+    try {
+      setIsUpdating(true);
+      setError(null);
+      setUpdateSuccess(false);
+      const updatedDeck = await updateDeck(deckId, slides);
+      setDeck(updatedDeck);
+      setUpdateSuccess(true);
+      setTimeout(() => setUpdateSuccess(false), 3000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Änderungen konnten nicht gespeichert werden.');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   const handleBack = () => {
     navigate('/slides/archive');
   };
@@ -56,8 +76,11 @@ export function useDeckDetail(deckId: string | undefined) {
     error,
     isDeleteDialogOpen,
     isDeleting,
+    isUpdating,
+    updateSuccess,
     setIsDeleteDialogOpen,
     handleDeleteConfirm,
+    handleUpdateDeck,
     handleBack,
   };
 }

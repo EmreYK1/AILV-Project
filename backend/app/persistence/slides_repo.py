@@ -54,3 +54,34 @@ def delete_slide_deck(db: Session, deck_id: UUID, user_id: UUID) -> bool:
     db.delete(deck)
     db.commit()
     return True
+
+def update_slide_deck_slides(
+    db: Session,
+    deck_id: UUID,
+    user_id: UUID,
+    slides_data: list[dict],
+) -> SlideDeck | None:
+    deck = get_slide_deck_by_id(db, deck_id, user_id)
+    if not deck:
+        return None
+    
+    # Delete existing slides
+    for slide in deck.slides:
+        db.delete(slide)
+        
+    db.flush()
+    
+    # Add new slides
+    for s in slides_data:
+        new_slide = Slide(
+            deck_id=deck.id,
+            position=s["position"],
+            slide_type=s.get("slide_type"),
+            title=s.get("title"),
+            bullets=s.get("bullets"),
+        )
+        db.add(new_slide)
+        
+    db.commit()
+    db.refresh(deck)
+    return deck

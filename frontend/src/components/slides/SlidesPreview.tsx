@@ -3,6 +3,8 @@ import type { SlideDraft } from '../../types/slides';
 
 interface SlidesPreviewProps {
   slides: SlideDraft[];
+  isEditing?: boolean;
+  onSlideChange?: (index: number, updatedSlide: SlideDraft) => void;
 }
 
 // Mappt den technischen slide_type auf ein lesbares Label und einen Modifier fürs Styling.
@@ -12,7 +14,7 @@ const SLIDE_TYPE_META: Record<string, { label: string; modifier: string }> = {
   closing: { label: 'Abschluss', modifier: 'slides-preview__frame--closing' },
 };
 
-export const SlidesPreview: React.FC<SlidesPreviewProps> = ({ slides }) => {
+export const SlidesPreview: React.FC<SlidesPreviewProps> = ({ slides, isEditing, onSlideChange }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -21,6 +23,11 @@ export const SlidesPreview: React.FC<SlidesPreviewProps> = ({ slides }) => {
     }
 
     const handleKeyDown = (event: KeyboardEvent) => {
+      // Deaktivieren der Tastatur-Navigation, wenn man tippt
+      if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA') {
+        return;
+      }
+
       if (event.key === 'ArrowLeft') {
         setCurrentIndex((index) => Math.max(index - 1, 0));
       }
@@ -50,6 +57,26 @@ export const SlidesPreview: React.FC<SlidesPreviewProps> = ({ slides }) => {
   };
   const progressPercent = ((currentIndex + 1) / slides.length) * 100;
 
+  const handleTitleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    onSlideChange?.(currentIndex, { ...currentSlide, title: e.target.value });
+  };
+
+  const handleBulletChange = (idx: number, value: string) => {
+    const newBullets = [...currentSlide.bullets];
+    newBullets[idx] = value;
+    onSlideChange?.(currentIndex, { ...currentSlide, bullets: newBullets });
+  };
+
+  const handleAddBullet = () => {
+    const newBullets = [...currentSlide.bullets, 'Neuer Punkt'];
+    onSlideChange?.(currentIndex, { ...currentSlide, bullets: newBullets });
+  };
+
+  const handleRemoveBullet = (idx: number) => {
+    const newBullets = currentSlide.bullets.filter((_, i) => i !== idx);
+    onSlideChange?.(currentIndex, { ...currentSlide, bullets: newBullets });
+  };
+
   return (
     <section className="slides-preview" aria-label="Folien-Vorschau">
       <header className="slides-preview__header">
@@ -63,26 +90,71 @@ export const SlidesPreview: React.FC<SlidesPreviewProps> = ({ slides }) => {
 
       <div
         key={currentIndex}
-        className={`slides-preview__frame ${meta.modifier}`}
+        className={`slides-preview__frame ${meta.modifier} ${isEditing ? 'slides-preview__frame--editable' : ''}`}
         role="group"
         aria-roledescription="Folie"
         aria-label={`Folie ${currentIndex + 1} von ${slides.length}: ${currentSlide.title}`}
       >
-        <div className="slides-preview__watermark" aria-hidden="true">
-          {String(currentIndex + 1).padStart(2, '0')}
-        </div>
-
         <div className="slides-preview__content">
-          <h2 className="slides-preview__title">{currentSlide.title}</h2>
+          {isEditing ? (
+            <textarea
+              className="slides-preview__title slides-preview__input slides-preview__input--title"
+              value={currentSlide.title}
+              onChange={handleTitleChange}
+              rows={2}
+            />
+          ) : (
+            <h2 className="slides-preview__title">{currentSlide.title}</h2>
+          )}
 
           <ul className="slides-preview__bullets">
-            {currentSlide.bullets.map((bullet) => (
-              <li className="slides-preview__bullet" key={bullet}>
+            {currentSlide.bullets.map((bullet, idx) => (
+              <li 
+                className="slides-preview__bullet" 
+                key={idx} 
+              >
                 <span className="slides-preview__bullet-marker" aria-hidden="true" />
-                <span>{bullet}</span>
+                {isEditing ? (
+                  <div className="slides-preview__bullet-edit-group">
+                    <textarea
+                      className="slides-preview__input slides-preview__input--bullet"
+                      value={bullet}
+                      onChange={(e) => handleBulletChange(idx, e.target.value)}
+                      rows={2}
+                    />
+                    <button 
+                      type="button" 
+                      className="slides-preview__icon-btn slides-preview__icon-btn--danger"
+                      onClick={() => handleRemoveBullet(idx)}
+                      title="Punkt löschen"
+                      aria-label="Punkt löschen"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ) : (
+                  <span>{bullet}</span>
+                )}
               </li>
             ))}
+            
+            {isEditing && currentSlide.slide_type !== 'title' && (
+              <li className="slides-preview__bullet slides-preview__bullet--add">
+                <button 
+                  type="button" 
+                  className="slides-preview__add-btn"
+                  onClick={handleAddBullet}
+                >
+                  + Punkt hinzufügen
+                </button>
+              </li>
+            )}
           </ul>
+        </div>
+        
+        <div className="slides-preview__footer" aria-hidden="true">
+          <span className="slides-preview__footer-brand">AI-LV Assistant</span>
+          <span className="slides-preview__footer-number">{String(currentIndex + 1).padStart(2, '0')}</span>
         </div>
       </div>
 

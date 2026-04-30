@@ -1,6 +1,6 @@
 import React from 'react';
-import { GenerateForm, QuestionsList } from '../../components/generate';
-import { ErrorBanner, Modal } from '../../components/shared';
+import { GenerateForm, QuestionsList, QuestionsStats } from '../../components/generate';
+import { ErrorBanner, Modal, GenerationSkeleton } from '../../components/shared';
 import { useQuestionWorkflow } from '../../hooks/questions/useQuestionWorkflow';
 
 export const GeneratePage: React.FC = () => {
@@ -15,9 +15,12 @@ export const GeneratePage: React.FC = () => {
     handleFinalizeQuestions,
   } = useQuestionWorkflow();
 
-  // Modal ist geöffnet, sobald Fragen vorliegen. Schließen passiert automatisch,
-  // wenn der Workflow die Fragen leert (z. B. nach Finalisierung).
-  const isModalOpen = questions.length > 0;
+  // Modal ist geöffnet, sobald Fragen vorliegen ODER noch geladen wird
+  // (damit das Skeleton im Modal sichtbar ist).
+  const isModalOpen = questions.length > 0 || (isLoading && questions.length === 0 && !errorMessage);
+
+  // Zeigt Skeleton nur, wenn gerade geladen wird UND noch keine Fragen da sind
+  const showSkeleton = isLoading && questions.length === 0;
 
   return (
     <div className="page">
@@ -36,39 +39,50 @@ export const GeneratePage: React.FC = () => {
       </div>
 
       <Modal isOpen={isModalOpen} title="Generierte Fragen" onClose={dismissResults}>
-        <ErrorBanner message={errorMessage} />
+        {showSkeleton ? (
+          <GenerationSkeleton
+            count={3}
+            message="KI generiert Prüfungsfragen …"
+          />
+        ) : (
+          <>
+            <ErrorBanner message={errorMessage} />
 
-        <QuestionsList
-          questions={questions}
-          onQuestionChange={handleQuestionChange}
-        />
+            <QuestionsStats questions={questions} />
 
-        <div className="questions-modal-actions">
-          {successMessage && (
-            <div
-              className="success-banner success-banner--modal"
-              role="alert"
-            >
-              <strong>Erfolg:</strong> {successMessage}
+            <QuestionsList
+              questions={questions}
+              onQuestionChange={handleQuestionChange}
+            />
+
+            <div className="questions-modal-actions">
+              {successMessage && (
+                <div
+                  className="success-banner success-banner--modal"
+                  role="alert"
+                >
+                  <strong>Erfolg:</strong> {successMessage}
+                </div>
+              )}
+              <button
+                type="button"
+                className="primary-button"
+                onClick={handleFinalizeQuestions}
+                disabled={isLoading || Boolean(successMessage)}
+              >
+                {isLoading ? 'Wird gespeichert...' : 'Fragen speichern'}
+              </button>
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={dismissResults}
+                disabled={isLoading}
+              >
+                Schließen
+              </button>
             </div>
-          )}
-          <button
-            type="button"
-            className="primary-button"
-            onClick={handleFinalizeQuestions}
-            disabled={isLoading || Boolean(successMessage)}
-          >
-            {isLoading ? 'Wird gespeichert...' : 'Fragen speichern'}
-          </button>
-          <button
-            type="button"
-            className="secondary-button"
-            onClick={dismissResults}
-            disabled={isLoading}
-          >
-            Schließen
-          </button>
-        </div>
+          </>
+        )}
       </Modal>
     </div>
   );

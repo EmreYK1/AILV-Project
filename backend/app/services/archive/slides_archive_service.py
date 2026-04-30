@@ -14,6 +14,7 @@ from ...persistence.slides_repo import (
     delete_slide_deck,
     get_slide_deck_by_id,
     get_slide_decks_by_user,
+    update_slide_deck_slides,
 )
 
 
@@ -66,4 +67,27 @@ def remove_deck(db: Session, deck_id: UUID, user_id: UUID) -> DeckDeleteResponse
         success=True,
         deck_id=deck_id,
         message="Deck deleted successfully",
+    )
+
+def modify_deck(db: Session, deck_id: UUID, user_id: UUID, slides_data: list[dict]) -> DeckDetailResponse:
+    deck = update_slide_deck_slides(db, deck_id, user_id, slides_data)
+    if not deck:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Deck not found")
+        
+    return DeckDetailResponse(
+        id=deck.id,
+        request_id=deck.request_id,
+        name=deck.name,
+        created_at=deck.created_at,
+        slides=[
+            DeckSlideItem(
+                id=slide.id,
+                position=slide.position,
+                slide_type=slide.slide_type,
+                title=slide.title,
+                bullets=slide.bullets or [],
+                created_at=slide.created_at,
+            )
+            for slide in deck.slides
+        ],
     )

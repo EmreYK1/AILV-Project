@@ -69,6 +69,19 @@ export async function getDeck(deckId: string): Promise<DeckDetailResponse> {
   );
 }
 
+export async function updateDeck(deckId: string, slides: SlideDraft[]): Promise<DeckDetailResponse> {
+  return await apiCall<DeckDetailResponse>(
+    `${API_BASE_URL}/api/slides/archive/${deckId}`,
+    {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ slides }),
+    }
+  );
+}
+
 export async function deleteDeck(deckId: string): Promise<DeckDeleteResponse> {
   return await apiCall<DeckDeleteResponse>(
     `${API_BASE_URL}/api/slides/archive/${deckId}`,

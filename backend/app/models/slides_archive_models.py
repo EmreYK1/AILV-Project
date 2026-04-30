@@ -37,3 +37,12 @@ class DeckDeleteResponse(BaseModel):
     success: bool
     deck_id: UUID
     message: str
+
+class SlideUpdateItem(BaseModel):
+    position: int
+    slide_type: str | None = None
+    title: str | None = None
+    bullets: list[str] = Field(default_factory=list)
+
+class DeckUpdateRequest(BaseModel):
+    slides: list[SlideUpdateItem] = Field(default_factory=list)

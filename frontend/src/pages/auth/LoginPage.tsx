@@ -1,26 +1,17 @@
 // src/pages/LoginPage.tsx
 // Login-Seite. Nach erfolgreichem Login: navigate. Optional: Ziel aus location.state.from.
 
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useLoginForm } from '../../hooks/auth/useLoginForm';
+import { useLoginRedirect } from '../../hooks/auth/useLoginRedirect';
 import { ErrorBanner } from '../../components/shared';
 import { PasswordVisibilityToggle } from '../../components/auth';
 
 export function LoginPage() {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
-
-  // Pfad aus location.state.from, falls gesetzt (Redirect von geschützter Route).
-  const redirectedFrom = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname;
-
-  const PAGE_NAMES: Record<string, string> = {
-    '/generate': 'Fragen generieren',
-    '/archive': 'Archiv',
-  };
-
-  const redirectedFromName = redirectedFrom ? (PAGE_NAMES[redirectedFrom] ?? redirectedFrom) : null;
+  const { redirectPath, redirectLabel } = useLoginRedirect();
 
   const {
     formValues,
@@ -32,7 +23,7 @@ export function LoginPage() {
     handleSubmit,
   } = useLoginForm({
     onSuccess: function () {
-      navigate(redirectedFrom ?? '/');
+      navigate(redirectPath ?? '/');
     },
   });
 
@@ -43,10 +34,10 @@ export function LoginPage() {
         Melden Sie sich an, um auf Funktionen wie Generierung und Archiv zuzugreifen.
       </p>
 
-      {redirectedFromName && (
+      {redirectLabel && (
         <div className="info-banner" role="status">
           <div className="info-banner-content">
-            Bitte einloggen, um <strong>{redirectedFromName}</strong> zu öffnen.
+            Bitte melden Sie sich erneut an, um <strong>{redirectLabel}</strong> zu öffnen.
           </div>
         </div>
       )}
