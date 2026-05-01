@@ -225,6 +225,7 @@ Weitere Informationen finden Sie in:
 - [Architektur-Übersicht](docs/architecture.md) - Systemarchitektur und Datenfluss
 - [API-Referenz](docs/api.md) - Alle Endpunkte, Request- und Response-Formate
 - [Datenbank-Dokumentation](docs/database.md) - Schema und Tabellenstruktur
+- [Datenbankbefehle](docs/db-commands.md) - Nützliche SQL- und psql-Befehle
 
 ---
 
