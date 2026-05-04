@@ -136,3 +136,21 @@ CREATE TABLE IF NOT EXISTS password_reset_tokens (
 
 CREATE INDEX idx_password_reset_user_id
     ON password_reset_tokens(user_id);
+
+CREATE TABLE IF NOT EXISTS jobs (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    job_type VARCHAR(50) NOT NULL,
+    status VARCHAR(50) NOT NULL DEFAULT 'pending',
+    progress INT NOT NULL DEFAULT 0,
+    request_data JSONB,
+    result_data JSONB,
+    error_message TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    CONSTRAINT chk_job_status CHECK (status IN ('pending', 'running', 'completed', 'failed')),
+    CONSTRAINT chk_job_progress CHECK (progress >= 0 AND progress <= 100)
+);
+
+CREATE INDEX idx_jobs_user_id ON jobs(user_id);
+CREATE INDEX idx_jobs_status  ON jobs(status);
