@@ -24,7 +24,7 @@ async def run_questions_job(
             job_id,
             status="completed",
             progress=100,
-            result_data=response.model_dump(),
+            result_data=response.model_dump(mode="json"),
         )
 
     except Exception as e:
@@ -55,7 +55,7 @@ async def run_slides_job(
             job_id,
             status="completed",
             progress=100,
-            result_data=response.model_dump(),
+            result_data=response.model_dump(mode="json"),
         )
 
     except Exception as e:
