@@ -138,3 +138,20 @@ class Slide(Base):
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
 
     deck = relationship("SlideDeck", back_populates="slides")
+
+
+class Job(Base):
+    __tablename__ = "jobs"
+
+    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
+    user_id = Column(Uuid, ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
+    job_type = Column(String(50), nullable=False)
+    status = Column(String(50), nullable=False, server_default="pending")
+    progress = Column(Integer, nullable=False, server_default="0")
+    request_data = Column(JSONB, nullable=True)
+    result_data = Column(JSONB, nullable=True)
+    error_message = Column(Text, nullable=True)
+    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    user = relationship("User")
