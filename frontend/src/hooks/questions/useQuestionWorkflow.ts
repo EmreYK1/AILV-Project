@@ -13,6 +13,8 @@ export function useQuestionWorkflow() {
   // Original-Fragen für Diff-Berechnung (nur Änderungen senden)
   const [originalQuestions, setOriginalQuestions] = useState<GeneratedQuestion[]>([]);
   const [requestId, setRequestId] = useState<string | null>(null);
+  // Job-ID des laufenden Generierungs-Jobs (asynchrone Pipeline)
+  const [jobId, setJobId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -21,24 +23,17 @@ export function useQuestionWorkflow() {
   // Verhindert doppelte Finalize-Requests bei schnellen Mehrfach-Events
   const isFinalizingRef = useRef(false);
 
-  // Sendet Formular ans Backend; bei Erfolg landen die Fragen im State.
+  // Sendet Formular ans Backend; das Backend startet die Generierung asynchron
+  // und gibt sofort eine job_id zurück. isLoading wird direkt danach freigegeben.
   const handleFormSubmit = async (values: GenerateRequestFormValues) => {
     setIsLoading(true);
     setErrorMessage(null);
 
     try {
       const result = await generateQuestions(values);
-      if (!result.questions || result.questions.length === 0) {
-        throw new Error('Keine Fragen wurden generiert.');
-      }
-      if (result.questions.some(q => !q.id)) {
-        throw new Error('Ungültige Fragen-Response: Fehlende IDs');
-      }
-      setQuestions(result.questions);
-      setOriginalQuestions(result.questions);
-      setRequestId(result.requestId);
+      setJobId(result.job_id);
     } catch (error) {
-      console.error('Fehler beim Generieren der Fragen:', error);
+      console.error('Fehler beim Starten der Fragen-Generierung:', error);
       setErrorMessage(getUserFriendlyMessage(error));
     } finally {
       setIsLoading(false);
@@ -52,6 +47,7 @@ export function useQuestionWorkflow() {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
     }
+    setJobId(null);
     setQuestions([]);
     setOriginalQuestions([]);
     setRequestId(null);
@@ -143,6 +139,7 @@ export function useQuestionWorkflow() {
     questions,
     originalQuestions,
     requestId,
+    jobId,
     errorMessage,
     successMessage,
     isLoading,

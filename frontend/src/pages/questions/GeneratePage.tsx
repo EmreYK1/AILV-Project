@@ -6,6 +6,7 @@ import { useQuestionWorkflow } from '../../hooks/questions/useQuestionWorkflow';
 export const GeneratePage: React.FC = () => {
   const {
     questions,
+    jobId,
     errorMessage,
     successMessage,
     isLoading,
@@ -15,12 +16,12 @@ export const GeneratePage: React.FC = () => {
     handleFinalizeQuestions,
   } = useQuestionWorkflow();
 
-  // Modal ist geöffnet, sobald Fragen vorliegen ODER noch geladen wird
-  // (damit das Skeleton im Modal sichtbar ist).
-  const isModalOpen = questions.length > 0 || (isLoading && questions.length === 0 && !errorMessage);
+  // Modal ist geöffnet, sobald eine Job-ID vorliegt (Generierung läuft)
+  // ODER bereits Fragen geladen wurden. Nicht mehr an isLoading gebunden.
+  const isModalOpen = jobId !== null || questions.length > 0;
 
-  // Zeigt Skeleton nur, wenn gerade geladen wird UND noch keine Fragen da sind
-  const showSkeleton = isLoading && questions.length === 0;
+  // Zeigt Skeleton solange ein Job läuft, aber noch keine Fragen da sind
+  const showSkeleton = jobId !== null && questions.length === 0;
 
   return (
     <div className="page">
