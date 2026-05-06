@@ -212,3 +212,7 @@ __marimo__/
 
 # Node.js / React
 node_modules/
+
+# Sprint documentation
+docs/sprint-4-stories.md
+docs/sprint-4-tasks.md

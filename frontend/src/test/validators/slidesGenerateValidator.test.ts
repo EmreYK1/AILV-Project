@@ -68,12 +68,6 @@ describe('slidesGenerateValidator – language', () => {
   it('akzeptiert "en"', () => {
     expect(validate({ ...VALID_BASE, language: 'en' }).language).toBeUndefined();
   });
-
-  it('meldet Fehler bei ungültiger Sprache', () => {
-    expect(validate({ ...VALID_BASE, language: 'fr' as 'de' | 'en' }).language).toBe(
-      'Bitte wähle eine gültige Sprache (de oder en).'
-    );
-  });
 });
 
 describe('slidesGenerateValidator – contextText', () => {

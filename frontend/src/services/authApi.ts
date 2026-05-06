@@ -4,6 +4,7 @@
 import type { LoginResponse } from '../types/auth';
 import { apiCall, API_BASE_URL } from './apiClient';
 
+// Registriert einen neuen Benutzer im System.
 export async function registerUser(
   username: string,
   email: string,
@@ -25,6 +26,7 @@ export async function registerUser(
   );
 }
 
+// Meldet einen Benutzer an und gibt den Auth-Token zurück.
 export async function loginUser(
   username: string,
   password: string
@@ -45,6 +47,7 @@ export async function loginUser(
   );
 }
 
+// Sendet einen Link zum Zurücksetzen des Passworts an die E-Mail-Adresse.
 export async function forgotPassword(email: string): Promise<void> {
   await apiCall(`${API_BASE_URL}/api/auth/forgot-password`, {
     method: 'POST',
@@ -54,6 +57,7 @@ export async function forgotPassword(email: string): Promise<void> {
   });
 }
 
+// Setzt das Passwort mit einem gültigen Token zurück.
 export async function resetPassword(token: string, newPassword: string): Promise<void> {
   await apiCall(`${API_BASE_URL}/api/auth/reset-password`, {
     method: 'POST',
@@ -63,6 +67,7 @@ export async function resetPassword(token: string, newPassword: string): Promise
   });
 }
 
+// Ändert das Passwort eines angemeldeten Benutzers.
 export async function changePassword(
   currentPassword: string,
   newPassword: string

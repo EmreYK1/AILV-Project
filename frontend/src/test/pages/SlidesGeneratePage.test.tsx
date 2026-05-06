@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, it, expect, vi } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { ProtectedRoute } from '../../components/routing';
-import { SlidesGeneratePage } from '../../pages/SlidesGeneratePage';
+import { SlidesGeneratePage } from '../../pages/slides/SlidesGeneratePage';
 import type { SlidesGenerateResponse } from '../../types/slides';
 
 // useAuth wird pro Test mit dem gewuenschten Login-Zustand verdrahtet.
@@ -26,6 +26,7 @@ const firstResponse: SlidesGenerateResponse = {
       slide_type: 'title',
       title: 'Erste Vorschau',
       bullets: ['Erster Punkt'],
+      examples: [],
     },
   ],
 };
@@ -39,6 +40,7 @@ const secondResponse: SlidesGenerateResponse = {
       slide_type: 'title',
       title: 'Neue Vorschau',
       bullets: ['Neuer Punkt'],
+      examples: [],
     },
   ],
 };

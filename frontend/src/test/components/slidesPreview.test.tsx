@@ -8,6 +8,7 @@ const mockSlides: SlideDraft[] = Array.from({ length: 12 }, (_, index) => ({
   slide_type: 'content',
   title: `Titel Folie ${index + 1}`,
   bullets: [`Bullet ${index + 1}.1`, `Bullet ${index + 1}.2`],
+  examples: [],
 }));
 
 describe('SlidesPreview Component', () => {

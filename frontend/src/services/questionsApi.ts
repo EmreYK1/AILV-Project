@@ -4,20 +4,20 @@
 import type { GenerateRequestFormValues } from '../types/generate';
 import type { GeneratedQuestion } from '../types/generatedQuestion';
 import type {
-  GenerateResponseDto,
   FinalizeRequest,
   FinalizeResponse,
   ArchiveTopicsResponse,
   ArchiveQuestionsResponse,
   ArchiveDeleteResponse,
 } from '../types/api';
+import type { JobCreateResponse } from '../types/jobs';
 import { toNumber } from '../utils/numberUtils';
-import { ApiError } from '../error-handling/AppErrors';
 import { apiCall, API_BASE_URL } from './apiClient';
 
+// Startet die asynchrone Generierung von Fragen.
 export async function generateQuestions(
   formValues: GenerateRequestFormValues
-): Promise<{ questions: GeneratedQuestion[]; requestId: string }> {
+): Promise<JobCreateResponse> {
   // Formularwerte in das Format umwandeln, das das Backend erwartet.
   const payload = {
     topic: formValues.topic,
@@ -34,7 +34,8 @@ export async function generateQuestions(
     ...(formValues.uploadContext && { upload_context: formValues.uploadContext }),
   };
 
-  const data: GenerateResponseDto = await apiCall<GenerateResponseDto>(
+  // Das Backend startet die Generierung asynchron und gibt sofort job_id + status zurück.
+  return await apiCall<JobCreateResponse>(
     `${API_BASE_URL}/api/generate`,
     {
       method: 'POST',
@@ -44,19 +45,9 @@ export async function generateQuestions(
       body: JSON.stringify(payload),
     }
   );
-
-  // Das Backend kann die Anfrage fachlich ablehnen, obwohl der HTTP-Request technisch erfolgreich war.
-  if (!data.accepted) {
-    throw new ApiError(
-      data.note || 'Generierung fehlgeschlagen.',
-      400,
-      'GENERATION_REJECTED'
-    );
-  }
-
-  return { questions: data.questions, requestId: data.request_id };
 }
 
+// Schließt eine Fragensitzung ab und speichert sie permanent.
 export async function finalizeQuestions(
   payload: FinalizeRequest
 ): Promise<FinalizeResponse> {
@@ -72,6 +63,7 @@ export async function finalizeQuestions(
   );
 }
 
+// Lädt alle Themen aus dem Fragen-Archiv, optional gefiltert nach Suchbegriff.
 export async function getArchiveTopics(searchTerm?: string): Promise<ArchiveTopicsResponse> {
   const url = new URL(`${API_BASE_URL}/api/archive/topics`);
   if (searchTerm && searchTerm.trim()) {
@@ -80,6 +72,7 @@ export async function getArchiveTopics(searchTerm?: string): Promise<ArchiveTopi
   return await apiCall<ArchiveTopicsResponse>(url.toString(), { method: 'GET' });
 }
 
+// Lädt alle generierten Fragen zu einer bestimmten Archiv-ID.
 export async function getArchiveQuestions(
   requestId: string
 ): Promise<ArchiveQuestionsResponse> {
@@ -94,7 +87,7 @@ export async function getArchiveQuestions(
   );
 }
 
-// Sendet bearbeitete Fragen ins Archiv-Update und überträgt nur editierbare Felder.
+// Aktualisiert bearbeitete Fragen in einem bestehenden Archiv-Eintrag.
 export async function updateArchiveQuestions(
   requestId: string,
   questions: GeneratedQuestion[]
@@ -122,6 +115,7 @@ export async function updateArchiveQuestions(
   );
 }
 
+// Löscht einen kompletten Eintrag aus dem Fragen-Archiv.
 export async function deleteArchiveEntry(requestId: string): Promise<ArchiveDeleteResponse> {
   return await apiCall<ArchiveDeleteResponse>(
     `${API_BASE_URL}/api/archive/${requestId}`,

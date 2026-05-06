@@ -62,6 +62,7 @@ async function parseResponse<T>(response: Response): Promise<T> {
   throw new ParseError('Antwort vom Backend hatte ein unerwartetes Format (kein JSON).');
 }
 
+// Führt einen generischen API-Aufruf mit Auth-Header und Fehlerbehandlung aus.
 export async function apiCall<T>(url: string, options: ApiCallOptions): Promise<T> {
   let response: Response;
   const requestOptions: RequestInit = {

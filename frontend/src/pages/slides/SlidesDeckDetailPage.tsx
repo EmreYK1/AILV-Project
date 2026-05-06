@@ -34,6 +34,7 @@ export const SlidesDeckDetailPage: React.FC = () => {
         slide_type: slide.slide_type || 'content',
         title: slide.title || '',
         bullets: slide.bullets || [],
+        examples: slide.examples || [],
       }));
       setEditedSlides(drafts);
     }
