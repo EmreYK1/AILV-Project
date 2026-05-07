@@ -14,81 +14,84 @@ import { LoginPage } from './pages/auth/LoginPage';
 import { ChangePasswordPage } from './pages/auth/ChangePasswordPage';
 import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/auth/ResetPasswordPage';
+import { JobContextProvider } from './context/JobContext';
 
 export const App: React.FC = () => {
   return (
-    <Layout>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route
-          path="/generate"
-          element={
-            <ProtectedRoute>
-              <GeneratePage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/slides/generate"
-          element={
-            <ProtectedRoute>
-              <SlidesGeneratePage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/slides/archive"
-          element={
-            <ProtectedRoute>
-              <SlidesArchivePage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/slides/archive/:deckId"
-          element={
-            <ProtectedRoute>
-              <SlidesDeckDetailPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/archive"
-          element={
-            <ProtectedRoute>
-              <ArchivePage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/change-password"
-          element={
-            <ProtectedRoute>
-              <ChangePasswordPage />
-            </ProtectedRoute>
-          }
-        />
-        {/* Öffentliche Auth-Seiten ohne GuestRoute – auch für eingeloggte User zugänglich */}
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route
-          path="/register"
-          element={
-            <GuestRoute>
-              <RegisterPage />
-            </GuestRoute>
-          }
-        />
-        <Route
-          path="/login"
-          element={
-            <GuestRoute>
-              <LoginPage />
-            </GuestRoute>
-          }
-        />
-      </Routes>
-    </Layout>
+    <JobContextProvider>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route
+            path="/generate"
+            element={
+              <ProtectedRoute>
+                <GeneratePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/slides/generate"
+            element={
+              <ProtectedRoute>
+                <SlidesGeneratePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/slides/archive"
+            element={
+              <ProtectedRoute>
+                <SlidesArchivePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/slides/archive/:deckId"
+            element={
+              <ProtectedRoute>
+                <SlidesDeckDetailPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/archive"
+            element={
+              <ProtectedRoute>
+                <ArchivePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/change-password"
+            element={
+              <ProtectedRoute>
+                <ChangePasswordPage />
+              </ProtectedRoute>
+            }
+          />
+          {/* Öffentliche Auth-Seiten ohne GuestRoute – auch für eingeloggte User zugänglich */}
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route
+            path="/register"
+            element={
+              <GuestRoute>
+                <RegisterPage />
+              </GuestRoute>
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <GuestRoute>
+                <LoginPage />
+              </GuestRoute>
+            }
+          />
+        </Routes>
+      </Layout>
+    </JobContextProvider>
   );
 };
 

@@ -5,16 +5,17 @@ import { generateQuestions, finalizeQuestions } from '../../services/questionsAp
 import { calculateQuestionDiff } from '../../utils/questionUtils';
 import { getUserFriendlyMessage } from '../../error-handling/errorMappers';
 import { DEFAULT_ERROR_MESSAGES, SUCCESS_MESSAGE_DISPLAY_TIME } from '../../constants/appConstants';
+import { useJobContext } from '../../context/JobContext';
 
 // Verwaltet den Daten-Workflow: Fragen generieren, bearbeiten, finalisieren.
 // UI-spezifischer Modal-State liegt bewusst NICHT mehr hier, sondern auf der Page.
 export function useQuestionWorkflow() {
+  const { activeJob, addJob, dismissJob } = useJobContext();
   const [questions, setQuestions] = useState<GeneratedQuestion[]>([]);
   // Original-Fragen für Diff-Berechnung (nur Änderungen senden)
   const [originalQuestions, setOriginalQuestions] = useState<GeneratedQuestion[]>([]);
   const [requestId, setRequestId] = useState<string | null>(null);
   // Job-ID des laufenden Generierungs-Jobs (asynchrone Pipeline)
-  const [jobId, setJobId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -22,16 +23,21 @@ export function useQuestionWorkflow() {
   const timeoutRef = useRef<number | null>(null);
   // Verhindert doppelte Finalize-Requests bei schnellen Mehrfach-Events
   const isFinalizingRef = useRef(false);
+  const questionJob = activeJob?.jobType === 'generate_questions' ? activeJob : null;
 
   // Sendet Formular ans Backend; das Backend startet die Generierung asynchron
   // und gibt sofort eine job_id zurück. isLoading wird direkt danach freigegeben.
   const handleFormSubmit = async (values: GenerateRequestFormValues) => {
     setIsLoading(true);
     setErrorMessage(null);
+    setSuccessMessage(null);
+    setQuestions([]);
+    setOriginalQuestions([]);
+    setRequestId(null);
 
     try {
       const result = await generateQuestions(values);
-      setJobId(result.job_id);
+      addJob(result.job_id, 'generate_questions');
     } catch (error) {
       console.error('Fehler beim Starten der Fragen-Generierung:', error);
       setErrorMessage(getUserFriendlyMessage(error));
@@ -47,7 +53,7 @@ export function useQuestionWorkflow() {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
     }
-    setJobId(null);
+    dismissJob();
     setQuestions([]);
     setOriginalQuestions([]);
     setRequestId(null);
@@ -135,11 +141,44 @@ export function useQuestionWorkflow() {
     };
   }, []);
 
+  useEffect(
+    function syncQuestionJobResult() {
+      if (!questionJob) {
+        return;
+      }
+
+      if (questionJob.status === 'failed') {
+        setErrorMessage(questionJob.errorMessage ?? 'Fragen konnten nicht generiert werden.');
+        return;
+      }
+
+      if (questionJob.status !== 'completed' || !questionJob.resultData) {
+        return;
+      }
+
+      const result = questionJob.resultData as {
+        request_id?: string;
+        questions?: GeneratedQuestion[];
+      };
+
+      if (!result.request_id || !Array.isArray(result.questions)) {
+        setErrorMessage('Ungültiges Ergebnisformat vom Job-Status.');
+        return;
+      }
+
+      setRequestId(result.request_id);
+      setQuestions(result.questions);
+      setOriginalQuestions(result.questions);
+      setErrorMessage(null);
+    },
+    [questionJob]
+  );
+
   return {
     questions,
     originalQuestions,
     requestId,
-    jobId,
+    jobId: questionJob?.jobId ?? null,
     errorMessage,
     successMessage,
     isLoading,

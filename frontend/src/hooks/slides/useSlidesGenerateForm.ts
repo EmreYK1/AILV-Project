@@ -1,7 +1,7 @@
 // src/hooks/slides/useSlidesGenerateForm.ts
 // Verwaltet State, Validierung und Submit für das Folien-Generierungsformular.
 
-import { useState, type ChangeEvent } from 'react';
+import { useEffect, useState, type ChangeEvent } from 'react';
 import type { Language } from '../../types/generate';
 import type {
   SlidesGenerateRequest,
@@ -15,6 +15,7 @@ import { useFormWithTouchedValidation } from '../shared/useFormWithTouchedValida
 import { generateSlides } from '../../services/slidesApi';
 import { getUserFriendlyMessage } from '../../error-handling/errorMappers';
 import { sanitizeToDigitsOnly } from '../../utils/inputSanitizer';
+import { useJobContext } from '../../context/JobContext';
 
 export interface SlidesFormValues {
   topic: string;
@@ -75,9 +76,10 @@ export interface UseSlidesGenerateFormReturn {
   isSaved: boolean;
 }
 
-export function useSlidesGenerateForm(_props: UseSlidesGenerateFormProps = {}): UseSlidesGenerateFormReturn {
-  const [jobId, setJobId] = useState<string | null>(null);
+export function useSlidesGenerateForm(props: UseSlidesGenerateFormProps = {}): UseSlidesGenerateFormReturn {
+  const { activeJob, addJob, dismissJob } = useJobContext();
   const [isSaved, setIsSaved] = useState(false);
+  const slidesJob = activeJob?.jobType === 'generate_slides' ? activeJob : null;
 
   const submitValues = async (
     values: SlidesFormValues,
@@ -87,7 +89,7 @@ export function useSlidesGenerateForm(_props: UseSlidesGenerateFormProps = {}): 
     setIsLoading(true);
     try {
       const result = await generateSlides(toApiRequest(values));
-      setJobId(result.job_id);
+      addJob(result.job_id, 'generate_slides');
       setIsSaved(false);
     } catch (error) {
       setSubmitError(getUserFriendlyMessage(error));
@@ -133,13 +135,39 @@ export function useSlidesGenerateForm(_props: UseSlidesGenerateFormProps = {}): 
     // wird mit S5.3 wiederhergestellt
   };
 
+  useEffect(
+    function syncSlidesJobResult() {
+      if (!slidesJob) {
+        return;
+      }
+
+      if (slidesJob.status === 'failed') {
+        base.setSubmitError(slidesJob.errorMessage ?? 'Folien konnten nicht generiert werden.');
+        return;
+      }
+
+      if (slidesJob.status !== 'completed' || !slidesJob.resultData) {
+        return;
+      }
+
+      const result = slidesJob.resultData as SlidesGenerateResponse;
+      if (Array.isArray(result.slides) && typeof result.request_id === 'string') {
+        props.onSuccess?.(result);
+        dismissJob();
+      } else {
+        base.setSubmitError('Ungültiges Ergebnisformat vom Job-Status.');
+      }
+    },
+    [slidesJob, props.onSuccess]
+  );
+
   return {
     formValues: base.formValues,
     errors: base.errors,
     submitError: base.submitError,
     isSubmitting: base.isLoading,
-    jobId,
-    clearJobId: () => setJobId(null),
+    jobId: slidesJob?.jobId ?? null,
+    clearJobId: dismissJob,
     hasValidationErrors: Object.keys(base.errors).length > 0,
     handleInputChange,
     handleBlur: base.handleBlur,
