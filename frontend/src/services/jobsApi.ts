@@ -13,3 +13,13 @@ export async function getJobStatus(jobId: string): Promise<JobStatusResponse> {
     }
   );
 }
+
+// Bricht einen laufenden asynchronen Job serverseitig ab.
+export async function cancelJob(jobId: string): Promise<JobStatusResponse> {
+  return await apiCall<JobStatusResponse>(
+    `${API_BASE_URL}/api/jobs/${jobId}`,
+    {
+      method: 'DELETE',
+    }
+  );
+}

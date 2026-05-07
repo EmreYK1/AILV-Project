@@ -4,3 +4,4 @@ export { PdfUpload } from './PdfUpload';
 export { ConfirmDialog } from './ConfirmDialog';
 export { Modal } from './Modal';
 export { GenerationSkeleton } from './GenerationSkeleton';
+export { JobStatusBar } from './JobStatusBar';

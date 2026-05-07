@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { GenerateForm, QuestionsList, QuestionsStats } from '../../components/generate';
 import { ErrorBanner, Modal, GenerationSkeleton } from '../../components/shared';
 import { useQuestionWorkflow } from '../../hooks/questions/useQuestionWorkflow';
@@ -7,6 +7,9 @@ export const GeneratePage: React.FC = () => {
   const {
     questions,
     jobId,
+    jobStatus,
+    jobProgress,
+    jobStageLabel,
     errorMessage,
     successMessage,
     isLoading,
@@ -14,14 +17,44 @@ export const GeneratePage: React.FC = () => {
     dismissResults,
     handleQuestionChange,
     handleFinalizeQuestions,
+    cancelGeneration,
   } = useQuestionWorkflow();
 
-  // Modal ist geöffnet, sobald eine Job-ID vorliegt (Generierung läuft)
-  // ODER bereits Fragen geladen wurden. Nicht mehr an isLoading gebunden.
-  const isModalOpen = jobId !== null || questions.length > 0;
+  const [isModalHidden, setIsModalHidden] = useState(false);
+  const hasQuestions = questions.length > 0;
+  const isGenerating = jobStatus === 'pending' || jobStatus === 'running';
 
-  // Zeigt Skeleton solange ein Job läuft, aber noch keine Fragen da sind
-  const showSkeleton = jobId !== null && questions.length === 0;
+  useEffect(
+    function reopenModalWhenQuestionsArrive() {
+      if (hasQuestions || isGenerating) {
+        setIsModalHidden(false);
+      }
+    },
+    [hasQuestions, isGenerating]
+  );
+
+  useEffect(function listenForOpenModalEvent() {
+    function handleOpenModal(): void {
+      setIsModalHidden(false);
+    }
+
+    window.addEventListener('open-active-job-modal', handleOpenModal);
+    return function cleanupOpenModalEvent() {
+      window.removeEventListener('open-active-job-modal', handleOpenModal);
+    };
+  }, []);
+
+  // Modal kann geschlossen werden, während der Job im Hintergrund weiterläuft.
+  const isModalOpen =
+    (jobId !== null || hasQuestions) &&
+    !isModalHidden;
+
+  // Zeigt Skeleton nur, solange der Job wirklich laeuft und noch keine Fragen da sind.
+  const showSkeleton = Boolean(jobId) && isGenerating && !hasQuestions;
+
+  function handleModalClose(): void {
+    setIsModalHidden(true);
+  }
 
   return (
     <div className="page">
@@ -39,12 +72,25 @@ export const GeneratePage: React.FC = () => {
         />
       </div>
 
-      <Modal isOpen={isModalOpen} title="Generierte Fragen" onClose={dismissResults}>
+      <Modal isOpen={isModalOpen} title="Generierte Fragen" onClose={handleModalClose}>
         {showSkeleton ? (
-          <GenerationSkeleton
-            count={3}
-            message="KI generiert Prüfungsfragen …"
-          />
+          <>
+            <GenerationSkeleton
+              count={3}
+              message="KI generiert Prüfungsfragen …"
+              progress={jobProgress ?? undefined}
+              stageLabel={jobStageLabel}
+            />
+            <div className="questions-modal-actions">
+              <button
+                type="button"
+                className="primary-button danger-button"
+                onClick={cancelGeneration}
+              >
+                Generierung abbrechen
+              </button>
+            </div>
+          </>
         ) : (
           <>
             <ErrorBanner message={errorMessage} />
@@ -76,7 +122,7 @@ export const GeneratePage: React.FC = () => {
               <button
                 type="button"
                 className="secondary-button"
-                onClick={dismissResults}
+                onClick={handleModalClose}
                 disabled={isLoading}
               >
                 Schließen

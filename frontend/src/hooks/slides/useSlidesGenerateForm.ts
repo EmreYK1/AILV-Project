@@ -13,6 +13,7 @@ import {
 } from '../../validators/slidesGenerateValidator';
 import { useFormWithTouchedValidation } from '../shared/useFormWithTouchedValidation';
 import { generateSlides } from '../../services/slidesApi';
+import { cancelJob } from '../../services/jobsApi';
 import { getUserFriendlyMessage } from '../../error-handling/errorMappers';
 import { sanitizeToDigitsOnly } from '../../utils/inputSanitizer';
 import { useJobContext } from '../../context/JobContext';
@@ -60,6 +61,9 @@ export interface UseSlidesGenerateFormReturn {
   isSubmitting: boolean;
   // Job-ID des laufenden Generierungs-Jobs (asynchrone Pipeline)
   jobId: string | null;
+  jobStatus: 'pending' | 'running' | 'completed' | 'failed' | null;
+  jobProgress: number | null;
+  jobStageLabel: string | null;
   clearJobId: () => void;
   hasValidationErrors: boolean;
   handleInputChange: (
@@ -72,6 +76,7 @@ export interface UseSlidesGenerateFormReturn {
   setUploadContext: (value: string | undefined) => void;
   regenerate: () => Promise<void>;
   saveSlides: (name: string) => Promise<void>;
+  cancelGeneration: () => Promise<void>;
   isSaving: boolean;
   isSaved: boolean;
 }
@@ -135,6 +140,20 @@ export function useSlidesGenerateForm(props: UseSlidesGenerateFormProps = {}): U
     // wird mit S5.3 wiederhergestellt
   };
 
+  const cancelGeneration = async (): Promise<void> => {
+    if (!slidesJob?.jobId || !isGeneratingJob(slidesJob.status)) {
+      return;
+    }
+
+    try {
+      await cancelJob(slidesJob.jobId);
+    } catch (error) {
+      console.error('Fehler beim Abbrechen der Folien-Generierung:', error);
+    } finally {
+      dismissJob();
+    }
+  };
+
   useEffect(
     function syncSlidesJobResult() {
       if (!slidesJob) {
@@ -153,7 +172,6 @@ export function useSlidesGenerateForm(props: UseSlidesGenerateFormProps = {}): U
       const result = slidesJob.resultData as SlidesGenerateResponse;
       if (Array.isArray(result.slides) && typeof result.request_id === 'string') {
         props.onSuccess?.(result);
-        dismissJob();
       } else {
         base.setSubmitError('Ungültiges Ergebnisformat vom Job-Status.');
       }
@@ -167,6 +185,9 @@ export function useSlidesGenerateForm(props: UseSlidesGenerateFormProps = {}): U
     submitError: base.submitError,
     isSubmitting: base.isLoading,
     jobId: slidesJob?.jobId ?? null,
+    jobStatus: slidesJob?.status ?? null,
+    jobProgress: slidesJob?.progress ?? null,
+    jobStageLabel: slidesJob?.stageLabel ?? null,
     clearJobId: dismissJob,
     hasValidationErrors: Object.keys(base.errors).length > 0,
     handleInputChange,
@@ -175,7 +196,12 @@ export function useSlidesGenerateForm(props: UseSlidesGenerateFormProps = {}): U
     setUploadContext,
     regenerate,
     saveSlides,
+    cancelGeneration,
     isSaving: false,
     isSaved,
   };
+}
+
+function isGeneratingJob(status: 'pending' | 'running' | 'completed' | 'failed'): boolean {
+  return status === 'pending' || status === 'running';
 }

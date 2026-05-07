@@ -1,7 +1,7 @@
 // src/pages/SlidesGeneratePage.tsx
 // Seite für die Folien-Generierung. Formular bleibt sichtbar, Vorschau öffnet sich im Modal.
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SlidesGenerateForm, SlidesPreview, SlidesSaveDialog } from '../../components/slides';
 import { ErrorBanner, Modal, GenerationSkeleton } from '../../components/shared';
 import { useSlidesGenerateForm } from '../../hooks/slides/useSlidesGenerateForm';
@@ -19,15 +19,44 @@ export const SlidesGeneratePage: React.FC = () => {
   }
 
   const form = useSlidesGenerateForm({ onSuccess: handleGenerationSuccess });
+  const [isModalHidden, setIsModalHidden] = useState(false);
+  const isGenerating = form.jobStatus === 'pending' || form.jobStatus === 'running';
 
   // Schließt das Vorschau-Modal und kehrt zum Formular zurück.
   function handleDismissPreview(): void {
     form.clearJobId();
     setGenerationResponse(null);
     setIsEditing(false);
+    setIsModalHidden(false);
   }
 
-  const isPreviewOpen = form.jobId !== null || generationResponse !== null;
+  useEffect(
+    function reopenPreviewWhenResultArrives() {
+      if (generationResponse) {
+        setIsModalHidden(false);
+      }
+    },
+    [generationResponse]
+  );
+
+  useEffect(function listenForOpenModalEvent() {
+    function handleOpenModal(): void {
+      setIsModalHidden(false);
+    }
+
+    window.addEventListener('open-active-job-modal', handleOpenModal);
+    return function cleanupOpenModalEvent() {
+      window.removeEventListener('open-active-job-modal', handleOpenModal);
+    };
+  }, []);
+
+  function handlePreviewClose(): void {
+    setIsModalHidden(true);
+  }
+
+  const isPreviewOpen =
+    (form.jobId !== null || generationResponse !== null) &&
+    !isModalHidden;
 
   function handleSlideChange(index: number, updatedSlide: import('../../types/slides').SlideDraft): void {
     if (!generationResponse) return;
@@ -52,15 +81,32 @@ export const SlidesGeneratePage: React.FC = () => {
       <Modal
         isOpen={isPreviewOpen}
         title="Generierte Folien"
-        onClose={handleDismissPreview}
+        onClose={handlePreviewClose}
         size="large"
         labelledById="slides-preview-title"
       >
         {form.jobId !== null && !generationResponse ? (
-          <GenerationSkeleton
-            count={1}
-            message="KI generiert Präsentationsfolien …"
-          />
+          <>
+            <GenerationSkeleton
+              count={1}
+              message="KI generiert Präsentationsfolien …"
+              progress={form.jobProgress ?? undefined}
+              stageLabel={form.jobStageLabel}
+            />
+            <div className="slides-preview__actions">
+              <button
+                type="button"
+                className="primary-button danger-button"
+                onClick={async () => {
+                  await form.cancelGeneration();
+                  setGenerationResponse(null);
+                  setIsModalHidden(false);
+                }}
+              >
+                Generierung abbrechen
+              </button>
+            </div>
+          </>
         ) : generationResponse ? (
           <>
             <SlidesPreview

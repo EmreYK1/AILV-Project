@@ -22,6 +22,7 @@ interface JobContextValue {
 
 const JobContext = createContext<JobContextValue | undefined>(undefined);
 const POLLING_INTERVAL_MS = 2000;
+const COMPLETED_VISIBILITY_MS = 30000;
 
 interface JobContextProviderProps {
   children: React.ReactNode;
@@ -97,6 +98,29 @@ export function JobContextProvider({ children }: JobContextProviderProps) {
       window.clearInterval(intervalId);
     };
   }, [activeJob?.jobId]);
+
+  useEffect(
+    function keepCompletedJobVisibleTemporarily() {
+      if (!activeJob || activeJob.status !== 'completed') {
+        return;
+      }
+
+      const timeoutId = window.setTimeout(function () {
+        setActiveJob(function (previousJob) {
+          if (!previousJob || previousJob.jobId !== activeJob.jobId) {
+            return previousJob;
+          }
+
+          return null;
+        });
+      }, COMPLETED_VISIBILITY_MS);
+
+      return function cleanupCompletedTimeout() {
+        window.clearTimeout(timeoutId);
+      };
+    },
+    [activeJob]
+  );
 
   const value = useMemo<JobContextValue>(
     function () {

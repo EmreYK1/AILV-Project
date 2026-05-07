@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ConfirmDialog } from '../components/shared';
+import { ConfirmDialog, JobStatusBar } from '../components/shared';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -165,6 +165,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </nav>
         </div>
       </header>
+      <JobStatusBar />
 
       <ConfirmDialog
         isOpen={logoutPending}
