@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import type { GeneratedQuestion } from '../../types/generatedQuestion';
 import type { GenerateRequestFormValues } from '../../types/generate';
 import { generateQuestions, finalizeQuestions } from '../../services/questionsApi';
+import { cancelJob } from '../../services/jobsApi';
 import { calculateQuestionDiff } from '../../utils/questionUtils';
 import { getUserFriendlyMessage } from '../../error-handling/errorMappers';
 import { DEFAULT_ERROR_MESSAGES, SUCCESS_MESSAGE_DISPLAY_TIME } from '../../constants/appConstants';
@@ -132,6 +133,20 @@ export function useQuestionWorkflow() {
     }
   };
 
+  const cancelGeneration = async () => {
+    if (!questionJob?.jobId || !isGeneratingJob(questionJob.status)) {
+      return;
+    }
+
+    try {
+      await cancelJob(questionJob.jobId);
+    } catch (error) {
+      console.error('Fehler beim Abbrechen der Fragen-Generierung:', error);
+    } finally {
+      dismissResults();
+    }
+  };
+
   // Cleanup: Timeout löschen beim Unmount
   useEffect(() => {
     return () => {
@@ -179,6 +194,9 @@ export function useQuestionWorkflow() {
     originalQuestions,
     requestId,
     jobId: questionJob?.jobId ?? null,
+    jobStatus: questionJob?.status ?? null,
+    jobProgress: questionJob?.progress ?? null,
+    jobStageLabel: questionJob?.stageLabel ?? null,
     errorMessage,
     successMessage,
     isLoading,
@@ -186,6 +204,11 @@ export function useQuestionWorkflow() {
     dismissResults,
     handleQuestionChange,
     handleFinalizeQuestions,
+    cancelGeneration,
   };
+}
+
+function isGeneratingJob(status: 'pending' | 'running' | 'completed' | 'failed'): boolean {
+  return status === 'pending' || status === 'running';
 }
 
