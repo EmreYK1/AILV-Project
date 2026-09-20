@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 from ...core.exceptions import LLMAPIError
 from ..templateService import get_template_by_stage, render_template
-from ..llm_client import call_llm
+from ..llm_client import get_default_llm_provider
+from ..llm_provider import LLMProvider
 from ...persistence.prompt_repo import insert_prompt_entry
 from ..validators.custom_prompt_validator import validate_custom_prompt
 
@@ -14,6 +15,7 @@ async def run_stage(
     language: str,
     context: dict,
     custom_prompt: Optional[str] = None,
+    llm_provider: Optional[LLMProvider] = None,
 ) -> str:
     if custom_prompt is not None:
         validate_custom_prompt(stage, custom_prompt)
@@ -30,7 +32,8 @@ async def run_stage(
     )
 
     try:
-        response = await call_llm(prompt)
+        provider = llm_provider or get_default_llm_provider()
+        response = await provider.complete(prompt)
     except LLMAPIError:
         prompt_entry.response_text = "ERROR during LLM call"
         db.commit()
