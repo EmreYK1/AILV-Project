@@ -1,7 +1,10 @@
-# Development and testing dependencies
-# Install with: pip install -r requirements-dev.txt
+# Entwicklungs- und Test-Abhängigkeiten
+
 -r requirements.txt
 
 pytest==8.3.5
 pytest-asyncio==0.24.0
 httpx<0.28
+
+# SQLAlchemy 2.x wird für bestimmte Datenbank-Tests (Fixtures) benötigt
+SQLAlchemy>=2.0,<2.1

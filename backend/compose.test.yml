@@ -1,0 +1,44 @@
+name: ailv-tests
+
+services:
+  db-test:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: ailv_test
+      POSTGRES_PASSWORD: local-test-only
+      POSTGRES_DB: aildb_test
+    volumes:
+      - test-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ailv_test -d aildb_test"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+    networks:
+      - test-network
+
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    environment:
+      # Fixed test target; no credentials or URLs from the host's .env.
+      TEST_DATABASE_URL: postgresql+psycopg2://ailv_test:local-test-only@db-test:5432/aildb_test
+    depends_on:
+      db-test:
+        condition: service_healthy
+    volumes:
+      # Code changes are available immediately; dependencies live in the image.
+      - ./app:/workspace/backend/app:ro
+      - ./tests:/workspace/backend/tests:ro
+      - ./pytest.ini:/workspace/backend/pytest.ini:ro
+    networks:
+      - test-network
+
+networks:
+  test-network:
+    # Test containers can reach each other, but not external services.
+    internal: true
+
+volumes:
+  test-db-data:

@@ -1,0 +1,20 @@
+# Only include the files needed by the test image.
+**
+!requirements.txt
+!requirements-dev.txt
+!pytest.ini
+!app/
+!app/**
+!tests/
+!tests/**
+
+# Never send local runtimes, credentials or caches to the image builder.
+**/.venv
+**/.env
+**/.env.*
+**/.git
+**/.aws
+**/.codex
+**/__pycache__
+**/.pytest_cache
+**/*.py[cod]
