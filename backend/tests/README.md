@@ -50,3 +50,24 @@ Nach Änderungen an Abhängigkeiten oder `Dockerfile.test` wieder den Befehl mit
 Die Tabellen werden aus den SQLAlchemy-Modellen erstellt. Constraints und
 Startdaten, die nur in `db-init` definiert sind, werden damit nicht abgebildet.
 
+
+## Gemeinsame Fixtures
+
+- `client`: FastAPI-TestClient mit isolierter `db_session`.
+- `smoke_client`: App-Start und `/health` ohne Datenbank; DB-Endpunkte sind gesperrt.
+- `test_user`, `test_password`: gespeicherter Benutzer mit bekanntem Testpasswort.
+- `user_factory(**overrides)`: weitere Benutzer pro Test anlegen.
+- `request_data`: gültige Request-Daten, auch ohne Datenbank verwendbar.
+- `test_generation_request`: gespeicherter Request des `test_user`.
+
+Die Fixtures stehen in Unit- und Integrationstests automatisch zur Verfügung.
+`db_session` rollt alle Änderungen nach jedem Test zurück, auch nach `commit()`.
+App-Overrides werden ebenfalls zurückgesetzt. Den synchronen Client und die
+Session innerhalb eines Tests nacheinander verwenden, nicht parallel.
+Hintergrundjobs mit eigener `SessionLocal` benötigen weiterhin einen Test-Double.
+
+Nur den Smoke-Test ausführen (ohne Datenbankstart):
+
+```shell
+docker compose -f compose.test.yml run --rm --no-deps -e TEST_DATABASE_URL= tests tests/integration/test_app_smoke.py -q
+```

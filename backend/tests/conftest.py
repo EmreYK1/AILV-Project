@@ -15,6 +15,11 @@ from app.db import DATABASE_URL
 from app.models.base import Base
 from app.models import sql_models
 
+pytest_plugins = [
+    "fixtures.application",
+    "fixtures.data",
+]
+
 _test_dialects = set()
 
 @event.listens_for(Engine, "do_connect")
