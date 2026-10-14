@@ -93,7 +93,7 @@ Fehlt `TEST_DATABASE_URL`, werden Datenbanktests automatisch übersprungen. Unit
 
 ```
 backend/tests/
-├── conftest.py              # Session-weite Fixtures (DB-Engine, db_session, Datenbankschutz)
+├── conftest.py              # Session-weite Fixtures (DB-Engine, db_session, tmp_path, Datenbankschutz)
 ├── fixtures/
 │   ├── application.py       # app, client, smoke_client
 │   └── data.py              # test_user, user_factory, request_data, test_generation_request
@@ -105,10 +105,16 @@ backend/tests/
 │   ├── conftest.py          # Setzt Pflicht-Env-Variablen für Unit-Tests
 │   ├── test_auth_service.py
 │   ├── test_batch_runner.py
-│   ├── test_progress_recorder.py
+│   ├── test_database_safety.py
 │   ├── test_fake_llm_provider.py
+│   ├── test_progress_recorder.py
+│   ├── test_request_fixture.py
+│   ├── test_setup.py
 │   ├── test_template_service.py
 │   └── validators/
+│       ├── conftest.py
+│       ├── test_question_validators.py
+│       └── test_slides_validators.py
 └── integration/
     ├── test_app_smoke.py
     ├── test_api_fixtures.py
@@ -227,12 +233,13 @@ Alle Fixtures stehen automatisch in Unit- und Integrationstests zur Verfügung (
 |---|---|
 | `db_session` | Isolierte DB-Session mit automatischem Rollback nach jedem Test |
 | `client` | FastAPI `TestClient` mit `db_session` als Datenbank |
-| `smoke_client` | `TestClient` ohne Datenbank; DB-Endpunkte sind gesperrt |
+| `smoke_client` | `TestClient` mit der App, aber **ohne** Datenbank; direkter DB-Zugriff ist gesperrt – für Smoke-Tests von Endpunkten, die keine DB benötigen |
 | `test_user` | Gespeicherter Benutzer mit bekanntem Passwort |
 | `test_password` | Passwort des `test_user` |
 | `user_factory(**overrides)` | Erstellt weitere Benutzer pro Test |
 | `request_data` | Gültige Generierungs-Anfragedaten (auch ohne DB verwendbar) |
 | `test_generation_request` | Gespeicherter `GenerationRequest` des `test_user` |
+| `tmp_path` | Überschreibt die eingebaute pytest-Fixture: löscht temporäre Dateien sofort nach jedem Test, auch bei Fehlschlägen |
 
 ---
 
